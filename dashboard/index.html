@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>PHY SW Group 조직문화 개선 대시보드</title>
-<link rel="icon" href="data:,">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PHY SW Group 조직문화 진단 대시보드</title>
 <style>
+
   :root{
     color-scheme: light;
     --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink2:#52514e; --muted:#898781;
@@ -103,19 +103,70 @@
   .foot{color:var(--muted);font-size:12px;margin-top:24px}
   .srow{display:flex;gap:8px;align-items:center}
   .srow input[type=range]{flex:1}
+
+
+.v-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(30, 90, 160, 0.08);
+  border: 1px solid rgba(30, 90, 160, 0.25);
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e5aa0;
+  margin-left: 14px;
+}
+.v-select {
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e5aa0;
+  background: #ffffff;
+  border: 1px solid #1e5aa0;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  outline: none;
+}
+.v-select:focus {
+  box-shadow: 0 0 0 2px rgba(30, 90, 160, 0.2);
+}
+.version-banner {
+  background: linear-gradient(90deg, #f0f6ff 0%, #f7fafc 100%);
+  border: 1px solid #cde2fb;
+  border-radius: 8px;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: #244165;
+}
+
 </style>
 </head>
 <body>
+<div id="tip"></div>
+
 <header>
-  <div class="hd-top">
-    <div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
       <h1>PHY SW Group 조직문화 개선 대시보드</h1>
-      <p class="sub">1on1 피드백 진단 → 병목·Stop-List → 단·중·장기 대책 → 빅테크 벤치마크. 입력은 브라우저에만 저장됩니다.</p>
+      <span class="v-badge">
+        <span>🕒 데이터 버전:</span>
+        <select id="selVersion" class="v-select" onchange="switchVersion(this.value)">
+          <option value="v2">v2.0 (2026-10-29 종합 전수 120건 · 12대 카테고리)</option>
+          <option value="v1">v1.0 (2026-10-18 초기 66건 · 8대 카테고리)</option>
+        </select>
+      </span>
     </div>
-    <div class="meta">기준일 2026-10-15 · 멀티에이전트 산출물 (6 Sub-Agents)<br>데이터: 익명화·요약된 1on1 항목 <span id="metaCount"></span>건</div>
+    <div style="font-size:12px;color:var(--muted)">삼성전자 DS S.LSI PHY SW Group</div>
   </div>
-  <nav id="tabs">
-    <button data-tab="diag" class="active">현황 진단</button>
+  <nav class="tabs" style="margin-top:12px">
+    <button class="active" data-tab="diag">현황 진단</button>
     <button data-tab="input">1on1 실시간 입력</button>
     <button data-tab="bigtech">빅테크 유사 사례</button>
     <button data-tab="actions">단·중·장기 대책</button>
@@ -126,18 +177,26 @@
 <main>
 <!-- ───────────── 탭 1: 현황 진단 ───────────── -->
 <section class="tab active" id="tab-diag">
+  <div id="versionBanner" class="version-banner">
+    <div><strong>v2.0 종합 전수 분석 모드:</strong> 과거 누적 13건 + 신규 107건(21명 인터뷰 전원)을 완전 병합한 120건 마스터 데이터셋과 12대 확장 카테고리 진단 결과를 표시 중입니다.</div>
+    <div style="font-size:12px;color:#1e5aa0">버전 선택기로 과거 v1.0 즉시 롤백/비교 가능</div>
+  </div>
+
   <div class="filters">
     <span style="color:var(--ink2);font-size:13px">직급 필터</span>
     <select id="fCL"><option value="">전체</option><option>CL2</option><option>CL3</option><option>CL4</option></select>
     <span style="color:var(--ink2);font-size:13px">기간</span>
     <select id="fRange"><option value="all">전체</option><option value="30">최근 30일</option><option value="90">최근 90일</option></select>
+    <span id="vIndicator" style="margin-left:auto;font-size:12px;color:var(--ink2)">표시 데이터: <strong id="vLabel">v2.0 종합 (120건)</strong></span>
   </div>
+
   <div class="grid g4" style="margin-bottom:16px">
-    <div class="card tile"><div class="label">1on1 피드백 항목 <span style="color:var(--muted)">(초기 데이터는 2026-10-15 정리본)</span></div><div class="value" id="kTotal">0</div><div class="delta" id="kByCL"></div></div>
+    <div class="card tile"><div class="label">1on1 피드백 항목 수</div><div class="value" id="kTotal">0</div><div class="delta" id="kByCL"></div></div>
     <div class="card tile"><div class="label">부정 비율 (감정도 1~2)</div><div class="value" id="kNeg">0%</div><div class="delta" id="kPos"></div></div>
-    <div class="card tile"><div class="label">최다 고충 카테고리</div><div class="value" id="kTop" style="font-size:22px">-</div><div class="delta" id="kTopN"></div></div>
-    <div class="card tile"><div class="label">심리적 안전감 (진단 점수)</div><div class="value hero">2.0<span style="font-size:18px;color:var(--muted)"> / 5</span></div><div class="delta">낮음 · 인정 없는 post-mortem, 리더 방문 부담</div></div>
+    <div class="card tile"><div class="label">최다 고충 카테고리</div><div class="value" id="kTop" style="font-size:20px">-</div><div class="delta" id="kTopN"></div></div>
+    <div class="card tile"><div class="label">심리적 안전감 (진단 점수)</div><div class="value hero" id="kPsych">2.1<span style="font-size:18px;color:var(--muted)"> / 5</span></div><div class="delta" id="kPsychDesc">낮음 · 회복 기로 (인정 선행 및 온보딩 시급)</div></div>
   </div>
+
   <div class="grid g21" style="margin-bottom:16px">
     <div class="card">
       <h3>직급 × 고충 카테고리 히트맵 <span style="font-weight:400;color:var(--muted)">(셀 = 부정 항목 수, 감정도 1~2)</span></h3>
@@ -153,13 +212,14 @@
         <li>전배·job posting 제도를 원활하게 사용할 수 있다</li>
       </ol>
       <h3 style="margin-top:16px">먼저 다룰 Top 3 블로커</h3>
-      <ol style="padding-left:18px;margin:0;font-size:13px;color:var(--ink2)">
-        <li>"요청 = 추가 숙제" 학습 (인정 없는 post-mortem)</li>
-        <li>"종착점·sub"라는 정체성 손상</li>
-        <li>"어차피 흐지부지"라는 학습된 무력감</li>
+      <ol id="topBlockersList" style="padding-left:18px;margin:0;font-size:13px;color:var(--ink2)">
+        <li><strong>선행-도메인 파트 위화감 및 R&R 단절</strong> (선행 툴 피드백 & Bring-up 순환제)</li>
+        <li><strong>신규 업무 온보딩 부재 및 용두사미 사후관리</strong> (1장 SOP & 과제 종료 회고 의무화)</li>
+        <li><strong>리더십 직접 압박 완화 및 Recognition First</strong> (자리 불시방문 금지 & 당근 선행)</li>
       </ol>
     </div>
   </div>
+
   <div class="grid g2" style="margin-bottom:16px">
     <div class="card">
       <h3>카테고리별 부정 항목 수</h3>
@@ -173,6 +233,7 @@
       <div id="trend"></div>
     </div>
   </div>
+
   <div class="card">
     <h3>근본 원인 매트릭스</h3>
     <table>
@@ -182,209 +243,171 @@
   </div>
 </section>
 
-<!-- ───────────── 탭 2: 실시간 입력 ───────────── -->
+<!-- ───────────── 탭 2: 1on1 실시간 입력 ───────────── -->
 <section class="tab" id="tab-input">
   <div class="grid g2">
     <div class="card">
-      <h2>1on1 항목 입력</h2>
-      <p class="lead" style="margin-bottom:12px">저장 즉시 모든 차트가 다시 계산됩니다. 원문 대신 <b>요약 문장</b>을 입력하고 실명·사번은 쓰지 마세요.</p>
-      <form id="form" class="form" autocomplete="off">
-        <label>날짜<input type="date" id="iDate" required></label>
-        <label>직급<select id="iCL" required><option>CL2</option><option>CL3</option><option selected>CL4</option></select></label>
-        <label>카테고리<select id="iCat" required></select></label>
-        <label>감정도 <span id="iMoodV">3</span>/5<div class="srow"><input type="range" id="iMood" min="1" max="5" value="3"></div></label>
-        <textarea id="iText" placeholder="예) 상용 이슈와 선행 과제를 동시에 맡아 우선순위를 정하기 어려움" required></textarea>
-        <div class="full notice" id="pii">⚠️ 실명·직책 호칭·사번으로 보이는 표현이 있습니다. 개인이 식별되지 않게 바꿔주세요. 그래도 저장하려면 "확인 후 저장"을 누르세요.</div>
-        <div class="full actions">
-          <button type="submit" class="btn primary" id="btnSave">저장</button>
-          <button type="button" class="btn" id="btnForce" style="display:none">확인 후 저장</button>
-          <span style="color:var(--muted);font-size:12px">감정도: 1 매우 부정 · 3 중립 · 5 매우 긍정</span>
+      <h3>새 1on1 피드백 입력</h3>
+      <form id="f1on1" onsubmit="addRecord(event)">
+        <div class="row">
+          <div><label>날짜</label><input type="date" id="iDate" required></div>
+          <div><label>직급</label><select id="iCL"><option>CL2</option><option selected>CL3</option><option>CL4</option></select></div>
+        </div>
+        <div class="row">
+          <div><label>고충 카테고리</label><select id="iCat"></select></div>
+          <div><label>감정도 (1 매우 부정 ~ 5 매우 긍정)</label><select id="iMood"><option value="1">1 (매우 부정 / 분노·소외)</option><option value="2" selected>2 (부정 / 답답·피로)</option><option value="3">3 (중립 / 관망)</option><option value="4">4 (긍정 / 만족·성장)</option><option value="5">5 (매우 긍정 / 적극 지지)</option></select></div>
+        </div>
+        <div>
+          <label>피드백 요약 <span style="font-weight:400;color:var(--muted)">(개인 식별 금지)</span></label>
+          <textarea id="iText" placeholder="예: 새로운 업무를 받았는데 온보딩 가이드가 없어 막막했음" required></textarea>
+        </div>
+        <div id="piiWarn" class="warn" style="display:none">⚠️ 실명 또는 사번으로 보이는 표현이 포함되어 있습니다. 익명화 후 등록해 주세요.</div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button type="submit" class="btn primary">등록하고 즉시 차트 반영</button>
+          <button type="button" class="btn" onclick="resetForm()">지우기</button>
         </div>
       </form>
-      <div class="actions" style="margin-top:18px">
-        <button class="btn" id="btnExport">JSON 내보내기</button>
-        <label class="btn" for="fileImport" style="cursor:pointer">JSON 가져오기</label>
-        <input type="file" id="fileImport" accept=".json" style="display:none">
-        <button class="btn danger" id="btnReset">초기 데이터로 되돌리기</button>
-      </div>
       <p class="privacy">🔒 입력 내용은 이 브라우저의 localStorage에만 저장되며 외부 서버로 전송되지 않습니다.</p>
     </div>
+
     <div class="card">
-      <h2>항목 목록 <span style="font-weight:400;color:var(--muted)" id="listCount"></span></h2>
-      <div style="max-height:620px;overflow:auto">
-        <table>
-          <thead><tr><th>날짜</th><th>직급</th><th>카테고리</th><th>감정</th><th>요약</th><th></th></tr></thead>
-          <tbody id="list"></tbody>
-        </table>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h3 style="margin:0">최근 입력 목록 (<span id="recCount">0</span>건)</h3>
+        <div style="display:flex;gap:6px">
+          <button class="btn small" onclick="exportJSON()">JSON 내보내기</button>
+          <button class="btn small" onclick="document.getElementById('impFile').click()">가져오기</button>
+          <button class="btn small" onclick="resetData()">초기 데이터로 되돌리기</button>
+          <input type="file" id="impFile" accept=".json" style="display:none" onchange="importJSON(event)">
+        </div>
       </div>
+      <div id="recList" style="max-height:500px;overflow-y:auto"></div>
     </div>
   </div>
 </section>
 
-<!-- ───────────── 탭 3: 빅테크 사례 ───────────── -->
+<!-- ───────────── 탭 3: 빅테크 유사 사례 ───────────── -->
 <section class="tab" id="tab-bigtech">
-  <h2>비슷한 고충을 겪은 빅테크 SW 조직 사례</h2>
-  <p class="lead">우리 그룹의 8개 고충 카테고리에 매핑되는 글로벌 사례입니다. 카드마다 문제 → 조치 → 결과 → 시사점과 출처를 담았습니다.</p>
-  <div class="filters"><span style="color:var(--ink2);font-size:13px">고충 카테고리</span><select id="fCase"><option value="">전체</option></select></div>
-  <div class="grid g2" id="cases"></div>
+  <div class="card" style="margin-bottom:16px">
+    <h3>빅테크 유사 사례 매핑</h3>
+    <p style="color:var(--ink2);font-size:13px;margin:4px 0 12px">우리 그룹이 겪는 12개 고충과 글로벌 SW 기업(Google, Microsoft, Shopify, Etsy, AMD 등)의 실제 극복 사례를 매핑했습니다. 모든 사례는 외부 공개 출처에 기반합니다.</p>
+    <div class="filters">
+      <span style="font-size:13px;color:var(--ink2)">카테고리 필터</span>
+      <select id="fCaseCat" onchange="renderCases()"><option value="">전체 카테고리</option></select>
+    </div>
+  </div>
+  <div class="grid g2" id="casesGrid"></div>
 </section>
 
-<!-- ───────────── 탭 4: 대책 ───────────── -->
+<!-- ───────────── 탭 4: 단·중·장기 대책 ───────────── -->
 <section class="tab" id="tab-actions">
-  <h2>단·중·장기 대책</h2>
-  <p class="lead">원칙은 더하기가 아니라 <b>버리기</b>. 단기는 신뢰 회복 신호, 중기는 구조 변경, 장기는 정체성과 커리어입니다. 카드를 클릭하면 대응 고충 카테고리가 표시됩니다.</p>
-  <div class="timeline" id="timeline"></div>
-  <div class="grid g2" style="margin-top:16px">
-    <div class="card">
-      <h3>고충 카테고리 → 대책 매핑</h3>
-      <table><thead><tr><th>카테고리</th><th class="num">부정 항목</th><th>대책</th></tr></thead><tbody id="mapTable"></tbody></table>
-    </div>
-    <div class="card">
-      <h3>Stop-List (즉시 중단·보류 후보)</h3>
-      <table><thead><tr><th class="num">#</th><th>항목</th><th>유형</th><th>사유</th></tr></thead><tbody id="stopTable"></tbody></table>
-    </div>
-  </div>
-  <div class="card" style="margin-top:16px">
+  <div class="card" style="margin-bottom:16px">
     <h3>4단계 리커버리 로드맵</h3>
-    <div class="road" id="roadmap"></div>
+    <div id="roadmapGrid" class="grid g4" style="margin-top:12px"></div>
   </div>
-  <div class="card" style="margin-top:16px">
-    <h3>개발 프로세스 병목 → 조치</h3>
-    <table><thead><tr><th>영역</th><th>증상</th><th>현재 비용</th><th>조치</th></tr></thead><tbody id="bottleTable"></tbody></table>
+
+  <div class="card" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3>Stop-List 10선 (즉시 중단·보류 항목)</h3>
+      <span style="font-size:12px;color:var(--muted)">더하기 전에 버리기(Subtraction) 우선</span>
+    </div>
+    <table style="margin-top:8px">
+      <thead><tr><th>우선순위</th><th>유형</th><th>중단·보류 항목</th><th>조치</th><th>중단 사유</th></tr></thead>
+      <tbody id="stopListBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom:16px">
+    <h3>단·중·장기 대책 매핑 (12대 카테고리 연계)</h3>
+    <div class="filters" style="margin:8px 0 12px">
+      <span style="font-size:13px;color:var(--ink2)">시기별 필터</span>
+      <select id="fTerm" onchange="renderActions()"><option value="">전체</option><option>단기</option><option>중기</option><option>장기</option></select>
+    </div>
+    <table>
+      <thead><tr><th>시기</th><th>대책</th><th>담당</th><th>성공 지표</th><th>대응 고충</th></tr></thead>
+      <tbody id="actionsBody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>개발 프로세스 병목 및 조치 (Workflow Optimizer)</h3>
+    <table style="margin-top:8px">
+      <thead><tr><th>영역</th><th>표면 증상</th><th>현재 비용 (추정)</th><th>해결 조치</th></tr></thead>
+      <tbody id="bottlenecksBody"></tbody>
+    </table>
   </div>
 </section>
 
-<!-- ───────────── 탭 5: 우수 사례 ───────────── -->
+<!-- ───────────── 탭 5: 우수 극복 사례 ───────────── -->
 <section class="tab" id="tab-stories">
-  <h2>어려움을 현명하게 극복한 우수 사례</h2>
-  <p class="lead">문제 → 조치 → 결과 → 우리 그룹 시사점. 각 사례는 출처 링크를 포함합니다.</p>
-  <div class="grid g3" id="stories"></div>
-  <p class="foot">출처는 공개 자료입니다. 사내 데이터는 검색어나 외부 서비스에 전송되지 않았습니다.</p>
+  <div class="card" style="margin-bottom:16px">
+    <h3>우수 극복 사례 3선 (스토리형 벤치마크)</h3>
+    <p style="color:var(--ink2);font-size:13px;margin:4px 0 12px">우리 조직과 유사한 위기를 겪고 턴어라운드에 성공한 글로벌 테크 기업의 상세 극복 스토리입니다. 문제 → 조치 → 결과 → 우리 그룹 시사점으로 구성되어 있습니다.</p>
+  </div>
+  <div id="storiesContainer"></div>
 </section>
 </main>
-<div class="tooltip" id="tip"></div>
 
 <script>
-/* ───────────── 데이터 ───────────── */
-const CATS = ["AI/AX 적응","GitHub/VCS","회의 비효율","소통·배경설명","정체성·커리어","보상·평가","리더십 소통","이슈처리 구조","기타"];
+/* ───────────── 데이터 세트 ───────────── */
+const SEED_V1 = [{"id": "s0", "date": "2026-10-15", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 활용 업무 전환·적응이 어려웠음"}, {"id": "s1", "date": "2026-10-15", "cl": "CL2", "cat": "AI/AX 적응", "mood": 4, "text": "로그 보다 코드 찾을 때 AI 분석이 큰 도움"}, {"id": "s2", "date": "2026-10-15", "cl": "CL3", "cat": "AI/AX 적응", "mood": 4, "text": "AI 응용이 실무에서 중요하다는 걸 알게 되어 흥미로움"}, {"id": "s3", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "초반 AI 업무 방향이 잡히지 않아 힘들었음"}, {"id": "s4", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 4, "text": "Tech Seminar를 AX 도구·워크플로 공유의 장으로 전환하는 데 동의"}, {"id": "s5", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "AI 시도의 노력이 상위 조직 방향 변화로 무용지물이 된 느낌"}, {"id": "s6", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "로그 분석 개선 노력이 메인 과제에 반영되지 않아 힘이 빠짐"}, {"id": "s7", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "코드 리뷰·지식 베이스·HW change 등 AI 도입 적응이 쉽지 않았음"}, {"id": "s8", "date": "2026-10-15", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "AI 분석 리포트가 맥락 없이 전달되어 업무 진행이 어려움"}, {"id": "s9", "date": "2026-10-15", "cl": "CL2", "cat": "GitHub/VCS", "mood": 1, "text": "특정 베이스 기준 수정 시 파일 history 보기 어려움"}, {"id": "s10", "date": "2026-10-15", "cl": "CL2", "cat": "GitHub/VCS", "mood": 1, "text": "merge/rebase 시 commit이 꼬이면 처음부터 다시 시작"}, {"id": "s11", "date": "2026-10-15", "cl": "CL3", "cat": "GitHub/VCS", "mood": 1, "text": "상용 계획 없는 칩셋 폴더 때문에 CL 제출이 번거로움"}, {"id": "s12", "date": "2026-10-15", "cl": "CL4", "cat": "GitHub/VCS", "mood": 2, "text": "P4→GitHub 전환 후 PR 제출에 반나절~하루"}, {"id": "s13", "date": "2026-10-15", "cl": "CL2", "cat": "회의 비효율", "mood": 2, "text": "회의가 많다는 느낌"}, {"id": "s14", "date": "2026-10-15", "cl": "CL2", "cat": "회의 비효율", "mood": 4, "text": "실제로 도움이 되는 회의도 있음"}, {"id": "s15", "date": "2026-10-15", "cl": "CL2", "cat": "회의 비효율", "mood": 1, "text": "방향 미정 상태의 다수 참여 목적 없는 회의. 다음 주도 똑같을 것"}, {"id": "s16", "date": "2026-10-15", "cl": "CL4", "cat": "회의 비효율", "mood": 2, "text": "연초 과제 회의와 과제 수가 너무 많았음"}, {"id": "s17", "date": "2026-10-15", "cl": "CL4", "cat": "회의 비효율", "mood": 1, "text": "참석 이유를 모르겠는 회의, 이름만 다른 중복 회의"}, {"id": "s18", "date": "2026-10-15", "cl": "CL2", "cat": "소통·배경설명", "mood": 2, "text": "개선 activity가 끝났는지 확인 없이 흐지부지"}, {"id": "s19", "date": "2026-10-15", "cl": "CL2", "cat": "소통·배경설명", "mood": 2, "text": "일의 목적·방향 설명이 필요"}, {"id": "s20", "date": "2026-10-15", "cl": "CL3", "cat": "소통·배경설명", "mood": 1, "text": "구매·투자성 업무가 배경 설명 없이 갑자기 배정됨"}, {"id": "s21", "date": "2026-10-15", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "일의 절차에 대한 설명이 아쉬움"}, {"id": "s22", "date": "2026-10-15", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "담당자를 파트별로 나눠 배정하면서 맥락 전달이 끊김"}, {"id": "s23", "date": "2026-10-15", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "상용 이슈와 선행 과제를 동시에 맡으면 우선순위를 정하기 어려움"}, {"id": "s24", "date": "2026-10-15", "cl": "CL4", "cat": "소통·배경설명", "mood": 1, "text": "개발·상용 마일스톤 전체가 어떻게 돌아가는지 전혀 모름"}, {"id": "s25", "date": "2026-10-15", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "리더 간 업무 방향 alignment 필요"}, {"id": "s26", "date": "2026-10-15", "cl": "CL2", "cat": "정체성·커리어", "mood": 1, "text": "HW 블락·test binary 작업 시 현타. test engineer 같다는 느낌"}, {"id": "s27", "date": "2026-10-15", "cl": "CL2", "cat": "정체성·커리어", "mood": 2, "text": "선행 파트 생성 후 나아진 게 무엇인지 의문"}, {"id": "s28", "date": "2026-10-15", "cl": "CL2", "cat": "정체성·커리어", "mood": 5, "text": "선행 파트 업무가 재미있고 역할에 만족"}, {"id": "s29", "date": "2026-10-15", "cl": "CL3", "cat": "정체성·커리어", "mood": 1, "text": "모뎀 개발팀 sub로 일하는 느낌. 선행 파트가 진짜 SW 업무처럼 보임"}, {"id": "s30", "date": "2026-10-15", "cl": "CL3", "cat": "정체성·커리어", "mood": 1, "text": "차라리 모뎀 개발팀에서 일하는 게 나아 보임"}, {"id": "s31", "date": "2026-10-15", "cl": "CL3", "cat": "정체성·커리어", "mood": 2, "text": "상위단 업무가 더 맞는다는 의견도 있음"}, {"id": "s32", "date": "2026-10-15", "cl": "CL4", "cat": "정체성·커리어", "mood": 2, "text": "주니어·시니어 접점이 사라져 따로 일하는 느낌"}, {"id": "s33", "date": "2026-10-15", "cl": "CL4", "cat": "정체성·커리어", "mood": 3, "text": "AI·최신 스킬을 함께 배워갈 방법이 필요"}, {"id": "s34", "date": "2026-10-15", "cl": "CL4", "cat": "정체성·커리어", "mood": 3, "text": "기술 트렌드 학습 전용 time slot 필요"}, {"id": "s35", "date": "2026-10-15", "cl": "CL2", "cat": "보상·평가", "mood": 1, "text": "고과에 대한 불만족 의견 다수"}, {"id": "s36", "date": "2026-10-15", "cl": "CL2", "cat": "보상·평가", "mood": 1, "text": "보상·당근, 결국 돈"}, {"id": "s37", "date": "2026-10-15", "cl": "CL2", "cat": "보상·평가", "mood": 3, "text": "이슈 해결한 사람에게 당근을 주자"}, {"id": "s38", "date": "2026-10-15", "cl": "CL4", "cat": "보상·평가", "mood": 1, "text": "열심히 해도 적자인데 뭐하러 하나는 인식이 팽배"}, {"id": "s39", "date": "2026-10-15", "cl": "CL2", "cat": "리더십 소통", "mood": 2, "text": "예고 없는 자리 방문이 부담으로 느껴짐"}, {"id": "s40", "date": "2026-10-15", "cl": "CL2", "cat": "리더십 소통", "mood": 3, "text": "급하더라도 부서원을 믿고 기다려 달라"}, {"id": "s41", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "AI 관심이 급격히 높아져 방향이 자주 바뀌는 느낌"}, {"id": "s42", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "리더의 불안과 조급함이 구성원에게 압박으로 전달됨"}, {"id": "s43", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 1, "text": "어려운 이슈 해결 후 인정 없이 바로 post-mortem이 요구되는 부담"}, {"id": "s44", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 3, "text": "이번 평가는 그룹이 바뀌길 바라는 의지의 표현"}, {"id": "s45", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 1, "text": "요청과 지시가 구성원에게 큰 부담으로 누적됨"}, {"id": "s46", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "상위 보고용으로 보이는 업무가 많다는 인식"}, {"id": "s47", "date": "2026-10-15", "cl": "CL4", "cat": "리더십 소통", "mood": 3, "text": "할 것을 찾기보다 하지 말아야 할 것을 생각해보자"}, {"id": "s48", "date": "2026-10-15", "cl": "CL2", "cat": "이슈처리 구조", "mood": 1, "text": "PHY가 종단이라 이슈 짬처리 느낌"}, {"id": "s49", "date": "2026-10-15", "cl": "CL4", "cat": "이슈처리 구조", "mood": 1, "text": "주니어들의 피해의식이 심함. 이슈의 종착점이라는 느낌"}, {"id": "s50", "date": "2026-10-15", "cl": "CL4", "cat": "이슈처리 구조", "mood": 2, "text": "사업자·외부·TE 이슈 처리 과정이 초보자에게 낯섦. 가이드 필요"}, {"id": "s51", "date": "2026-10-15", "cl": "CL4", "cat": "이슈처리 구조", "mood": 1, "text": "PHY가 종단이라 원인 불명 이슈가 NW issue로 처리되며 어려움"}, {"id": "s52", "date": "2026-10-15", "cl": "CL4", "cat": "이슈처리 구조", "mood": 2, "text": "DL BLER 발생 시 demod로 자동 할당. 약전계 이슈도 쉽지 않음"}, {"id": "u1792105112177", "date": "2026-10-16", "cl": "CL4", "cat": "GitHub/VCS", "mood": 5, "text": "GitHub 는 LLM 사용하면 다 해주기 때문에 예를 들어 Open code 에 rebase/merge 해서 다시 PR 생성해줘. 와 같은 식으로 AI를 활용하면 쉽게 된다."}, {"id": "u1792108302486", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "push 가 초반에 있었고, 과제진행할게 연습 샘플(HW Change List ) 가 부족하다."}, {"id": "u1792111477440", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "AX 업무에 재미가 있긴 한데 깊게 들어가고 싶은 분야를 정하고 싶고 더 공부를 하고 싶다.\nPHY brain 을 만들어서 운영하고 싶은데, 컨텐츠 축적과 소스 확보가 힘들다."}, {"id": "u1792111585617", "date": "2026-10-16", "cl": "CL4", "cat": "리더십 소통", "mood": 3, "text": "junior 와 senior 의 간극이 존재. 다가서기 쉽지 않고, 각자 업무 진행하느라 대화의 시간이 필요하다."}, {"id": "u1792111675974", "date": "2026-10-16", "cl": "CL4", "cat": "이슈처리 구조", "mood": 3, "text": "PHY 자체의 이슈 처리나 고객 이슈 대응의 기본 강도와 어려움이 존재해서 기본적인 고충의 레벨이 다르다."}, {"id": "u1792111849171", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "초기 AX 과제 회의 때 특별한 output 이나 의미있는 output 도 없는데 회의가 부담이 됨"}, {"id": "u1792111946041", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "code review 같은 경우 team, group, 개별 코드 리뷰 dashboard 에 대해서 통합하는 방향으로 가는게 좋겠다."}, {"id": "u1792123351941", "date": "2026-10-16", "cl": "CL3", "cat": "회의 비효율", "mood": 3, "text": "회의가 많아졌다."}, {"id": "u1792123579848", "date": "2026-10-16", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "선행 파트에서의 과제들이 셋업되면서 도메인으로 담당자들이 지정되어서 업무 가중됨. 선행파트에서 뭘 하는지 모르겠다.\n선행파트에서 진행되는 일에 대한 홍보가 부족하다. 도메인으로 할당되는 일들의 의미도 모른채 업무 진행해야해서 맥락 이해가 안된다."}, {"id": "u1792123671215", "date": "2026-10-16", "cl": "CL3", "cat": "이슈처리 구조", "mood": 3, "text": "KPI 그룹 활동으로 줄기는 했지만, 여전히 이슈가 PHY 로 바로 꽂히는 이슈들로 여전히 괴롭다.\n확인해야 하는 구간을 보지 않고 단순 keyword search 로 이슈 전달하는 상위 담당자가 있다. RRC"}, {"id": "u1792124680470", "date": "2026-10-16", "cl": "CL3", "cat": "회의 비효율", "mood": 3, "text": "회의 진행 시 참석자들이 말을 안한다. 회의를 하면 말하는 사람들만 말한다."}, {"id": "u1792125433959", "date": "2026-10-16", "cl": "CL3", "cat": "AI/AX 적응", "mood": 3, "text": "AI 를 적극적으로 사용하지 않는 사람들이 있는데 AI 과제에서 도대체 뭘 하는지 모르겠다. 원인은 그룹원들에게 benefit 홍보가 안된다. group 의 AX 업무 소개나 PHY group 의 tech seminar 에 대해서 regular 하게 진행되었으면 좋겠고, 사전 공지가 잘 되었으면 좋겠다."}, {"id": "u1792125509394", "date": "2026-10-16", "cl": "CL3", "cat": "AI/AX 적응", "mood": 3, "text": "세미나 홍보는 파트 단위로도 공지되는 체계가 있어야 한다. 그룹 단위 일괄 공지는 놓치기 쉽다."}];
+const SEED_V2 = [{"id": "v2_e001", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 1, "text": "그룹장의 부탁은 업무지시라기보다는 엄청난 '부담' 으로 다가옴"}, {"id": "v2_e002", "date": "2026-10-29", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "이번 SCI 는 그룹이 바뀌길 바라는 사람들이 참여했다고 봄"}, {"id": "v2_e003", "date": "2026-10-29", "cl": "CL4", "cat": "협업·R&R", "mood": 2, "text": "PL, TL 간 방향 alignment 가 안되어 보임"}, {"id": "v2_e004", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "위에다 보여주기 위한 일처리로 보이는 경우가 있음"}, {"id": "v2_e005", "date": "2026-10-29", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "무엇을 그만해야 할가를 고민 필요"}, {"id": "v2_e006", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "장비 구매 등의 새로운 업무를 부여 시에 유경험자에게 물어보라는 지시는 받아들이기 힘들다"}, {"id": "v2_e007", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 4, "text": "AI 관련해서 흥미가 있고, 모델을 활용하여 업무 효율화를 이루는 것이 중요하다"}, {"id": "v2_e008", "date": "2026-10-29", "cl": "CL3", "cat": "정체성·커리어", "mood": 2, "text": "선행파트에서 MIPs 최적화 등의 업무가 아니면 Modem 개발팀 sub 로 일하는 느낌이다. 차라리 Modem  개발팀에서 우리 업무를 하는게 나아보인다."}, {"id": "v2_e009", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "Career 면에서 AI 를 활용한 상위 layer 의 algorithm 쪽 업무를 해보고 싶다."}, {"id": "v2_e010", "date": "2026-10-29", "cl": "CL4", "cat": "협업·R&R", "mood": 2, "text": "junior, senior 간 접점이 사라지고 따로 일한다."}, {"id": "v2_e011", "date": "2026-10-29", "cl": "CL4", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "피해의식을 가지는 경우가 있다."}, {"id": "v2_e012", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "그룹장에게 불안함이 많이 보인다."}, {"id": "v2_e013", "date": "2026-10-29", "cl": "CL4", "cat": "보상·평가", "mood": 4, "text": "일해도 어차피 적자인데 이거하면 나에게 도움되? 이런 정서가 많다"}, {"id": "v2_e014", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 업무 전환으로 업무 적응이 어렵다."}, {"id": "v2_e015", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 4, "text": "log , code 분석에 도움을 많이 받고 있다."}, {"id": "v2_e016", "date": "2026-10-29", "cl": "CL2", "cat": "GitHub/VCS", "mood": 2, "text": "github 사용 시에 특정 베이스에서 당길 때, file history, monitoring, merge tool 등이 있으면 좋겠다."}, {"id": "v2_e017", "date": "2026-10-29", "cl": "CL2", "cat": "프로세스 & 온보딩", "mood": 2, "text": "개선을 위해 셋업된 업무가 제대로 마무리되는지 확인 과정이 없다."}, {"id": "v2_e018", "date": "2026-10-29", "cl": "CL2", "cat": "회의 비효율", "mood": 2, "text": "회의가 왜이렇게 많아 .... 라는 voice 가 들렸었다."}, {"id": "v2_e019", "date": "2026-10-29", "cl": "CL2", "cat": "리더십 소통", "mood": 2, "text": "그룹장이 자리로 찾아가는 것이 상당히 부담스럽다."}, {"id": "v2_e020", "date": "2026-10-29", "cl": "CL2", "cat": "정체성·커리어", "mood": 1, "text": "HW 관련 이슈들로 바이너리 만들 때 현타온다. 모뎀 개발팀에 MDVP 처럼 일하는 느낌"}, {"id": "v2_e021", "date": "2026-10-29", "cl": "CL2", "cat": "협업·R&R", "mood": 2, "text": "선행파트 생성 후에 뭐가 나아졌는지 알고 싶다."}, {"id": "v2_e022", "date": "2026-10-29", "cl": "CL2", "cat": "이슈처리 구조", "mood": 2, "text": "특정 도메인 이슈 짬통"}, {"id": "v2_e023", "date": "2026-10-29", "cl": "CL2", "cat": "보상·평가", "mood": 4, "text": "고과에 대한 불만족인 사람들이 많다"}, {"id": "v2_e024", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 4, "text": "일이 재미있고 선행 파트에서의 role 에 만족한다."}, {"id": "v2_e025", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 2, "text": "그룹원들의 피드백을 많이 받을 수 있도록 할 예정"}, {"id": "v2_e026", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 4, "text": "weekly 분석 자동화 미팅은 도움이 되었다."}, {"id": "v2_e027", "date": "2026-10-29", "cl": "CL2", "cat": "회의 비효율", "mood": 2, "text": "방향이 결정되지 않고 목적이 뚜렸하지 않은 회의들이 있었다."}, {"id": "v2_e028", "date": "2026-10-29", "cl": "CL2", "cat": "보상·평가", "mood": 2, "text": "보상은 고과, 돈이 결국 결론이다"}, {"id": "v2_e029", "date": "2026-10-29", "cl": "CL2", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "급하더라도 부서원을 믿고 기다려라"}, {"id": "v2_e030", "date": "2026-10-29", "cl": "CL2", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "이슈 해결한 사람에게 당근을 주자"}, {"id": "v2_e031", "date": "2026-10-29", "cl": "CL4", "cat": "협업·R&R", "mood": 2, "text": "선행파트가 생기면서 도메인 파트는 뒤쳐지는 느낌"}, {"id": "v2_e032", "date": "2026-10-29", "cl": "CL4", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "이슈를 LEADING 할 때 co-work 하는 사람들의 피드백이 없어 의욕이 감소"}, {"id": "v2_e033", "date": "2026-10-29", "cl": "CL4", "cat": "과제 과중 & 리소스", "mood": 2, "text": "연초에 담당자 지정이 많고 회의가 많았다."}, {"id": "v2_e034", "date": "2026-10-29", "cl": "CL3", "cat": "협업·R&R", "mood": 2, "text": "SSIR 협업 업무 진행 시에 sub 업무들이 늘어나면서 업무가 가중되는데 참여 그룹간 역할 분배 필요"}, {"id": "v2_e035", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "AX 과제 push 가 심했다"}, {"id": "v2_e036", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "AX 과제 진행해볼 연습 target 이 부족하다."}, {"id": "v2_e037", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "Bring up 업무 진행 시에 rotation 이 있으면 좋겠다."}, {"id": "v2_e038", "date": "2026-10-29", "cl": "CL3", "cat": "회의 비효율", "mood": 2, "text": "회의 진행 시에 목적, output, 참석자가 명확하면 좋겠다"}, {"id": "v2_e039", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 4, "text": "group 이 변화해 가는 모습이 좋다"}, {"id": "v2_e040", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "좋은 면도 있고 불만이 있는 사람들도 존재한다"}, {"id": "v2_e041", "date": "2026-10-29", "cl": "CL3", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "이슈 발생 시에 PL 이 물어보면 압박이 심하다"}, {"id": "v2_e042", "date": "2026-10-29", "cl": "CL3", "cat": "회의 비효율", "mood": 2, "text": "회의 진행 시에 비효율적인 면이 있을 수 있지만 쉽게 해결될 수 있을지 모르겠다"}, {"id": "v2_e043", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "group code review 를 통하여 back out 이 줄은 것 같다."}, {"id": "v2_e044", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "group code review 에 불만도 있다"}, {"id": "v2_e045", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "group code review 시에 verification list 를 추가했는데, 자동 검증 신청이나 TC 추가 등에 활용에 대한 고민 필요함"}, {"id": "v2_e046", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 2, "text": "LIME 업무 진행 시에 업무 우선순위 지정 필요하다"}, {"id": "v2_e047", "date": "2026-10-29", "cl": "CL3", "cat": "과제 과중 & 리소스", "mood": 2, "text": "상용이슈 몰릴 때 전문성을 가진 인력이 부족하다"}, {"id": "v2_e048", "date": "2026-10-29", "cl": "CL3", "cat": "협업·R&R", "mood": 2, "text": "구성원 간 협업하는 문화가 줄어든다"}, {"id": "v2_e049", "date": "2026-10-29", "cl": "CL3", "cat": "협업·R&R", "mood": 2, "text": "선행파트에서 만든 tool 들에 feedback 을 원활하게 주고싶다."}, {"id": "v2_e050", "date": "2026-10-29", "cl": "CL3", "cat": "이슈처리 구조", "mood": 2, "text": "특정 이슈나 업무 처리에 leading 역할을 맡기 어려운 부분이 있다."}, {"id": "v2_e051", "date": "2026-10-29", "cl": "CL2", "cat": "과제 과중 & 리소스", "mood": 2, "text": "VP 해야할 일은 맞는데 상용이슈 등의 업무와 몰리면 처리가 힘들다"}, {"id": "v2_e052", "date": "2026-10-29", "cl": "CL2", "cat": "회의 비효율", "mood": 2, "text": "성능 이슈들 확인 시에 modem 개발팀과 회의 및 논의 후 수족처럼 테스트만"}, {"id": "v2_e053", "date": "2026-10-29", "cl": "CL2", "cat": "이슈처리 구조", "mood": 2, "text": "칩셋별 feature 적용 여부, LLS vs 단말 성능 측정 결과 등을 DB 화 하여 검색 가능하면 좋겠다."}, {"id": "v2_e054", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 과도기에 성능에 대한 보장 없이 다 믿을 수 있는지 확신이 안 선다."}, {"id": "v2_e055", "date": "2026-10-29", "cl": "CL2", "cat": "GitHub/VCS", "mood": 2, "text": "github merge, rebase tool 이 있으면 좋겠다."}, {"id": "v2_e056", "date": "2026-10-29", "cl": "CL2", "cat": "이슈처리 구조", "mood": 2, "text": "Fading channel TC 에 대해서 TC 협의가 사전에 원활히 잘 이루어지면 좋겠다."}, {"id": "v2_e057", "date": "2026-10-29", "cl": "CL2", "cat": "회의 비효율", "mood": 4, "text": "이슈 회의는 도움이 되고 있다."}, {"id": "v2_e058", "date": "2026-10-29", "cl": "CL2", "cat": "프로세스 & 온보딩", "mood": 2, "text": "코드 리뷰 회의 진행 시에 내 순서 끝나면 퇴장 rule 등이 있으면 좋겠다."}, {"id": "v2_e059", "date": "2026-10-29", "cl": "CL2", "cat": "협업·R&R", "mood": 2, "text": "team, group 간의 업무 중복에 대해서 정리를 하면 좋겠다."}, {"id": "v2_e060", "date": "2026-10-29", "cl": "CL2", "cat": "회의 비효율", "mood": 2, "text": "회의시간은 점심시간을 피하고 1시간 내로 끝내면 좋겠다."}, {"id": "v2_e061", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "LLM Crash 분석에 좀 더 전문성을 높여보고 싶다. stability 담당자와 연결시켜주면 좋겠다."}, {"id": "v2_e062", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 2, "text": "그룹내의 프로젝트 진행에 관심이 많다. 이에 대한 홍보활동이 있으면 좋겠다."}, {"id": "v2_e063", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 4, "text": "사수의 활발한 업무 전수에 성장한 느낌이고 재미있었다."}, {"id": "v2_e064", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "개인적으로 힘든일이 있었다."}, {"id": "v2_e065", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "AI, github 변화 힘들지만 적응해야 한다고 생각한다."}, {"id": "v2_e066", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 4, "text": "post mortem 활동은 이슈 재발 방지를 위해 도움은 되지만 주변 사람들이 힘들어한다."}, {"id": "v2_e067", "date": "2026-10-29", "cl": "CL3", "cat": "회의 비효율", "mood": 2, "text": "회의가 많다는 사람들이 있다."}, {"id": "v2_e068", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "AI 관련 업무에 관심많고 적극적으로 발전, 활용하고 싶다."}, {"id": "v2_e069", "date": "2026-10-29", "cl": "CL2", "cat": "GitHub/VCS", "mood": 2, "text": "github 시간 오래 소요"}, {"id": "v2_e070", "date": "2026-10-29", "cl": "CL2", "cat": "소통·배경설명", "mood": 4, "text": "VP pre-silicon 에서 shift left 효과가 있다고 생각한다."}, {"id": "v2_e071", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 4, "text": "AI 활용해보니 실제 코드 이해에 도움이 많이 된다."}, {"id": "v2_e072", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 를 활용하니 다른 블락도 쉽게 이해할 수 있다."}, {"id": "v2_e073", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 를 활용한 효율화 진행해볼 예정"}, {"id": "v2_e074", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "목적, 배경 설명이 확실하고 납득이 되면 열심히 해보고 싶다."}, {"id": "v2_e075", "date": "2026-10-29", "cl": "CL3", "cat": "인정 & 심리적 안전감", "mood": 1, "text": "나의 의견이 반영이 안되거나 무시당할 때 힘빠진다."}, {"id": "v2_e076", "date": "2026-10-29", "cl": "CL3", "cat": "협업·R&R", "mood": 2, "text": "R&R 엮인 업무들 진행 시에 부탁은 하지만 담당자의 반응이 느리고 fade out 되는 경우 힘들다"}, {"id": "v2_e077", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 5, "text": "개인 프로젝트를 하고 올해 업무 만족도가 높다."}, {"id": "v2_e078", "date": "2026-10-29", "cl": "CL3", "cat": "인정 & 심리적 안전감", "mood": 2, "text": "업무 진행시에 더 관심을 받으면 일할 맛 난다."}, {"id": "v2_e079", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "파트장님들을 통한 업무 의미 설명이 잘되면 좋겠다."}, {"id": "v2_e080", "date": "2026-10-29", "cl": "CL3", "cat": "과제 과중 & 리소스", "mood": 2, "text": "인력 충원에 대해서 궁금하다"}, {"id": "v2_e081", "date": "2026-10-29", "cl": "CL3", "cat": "회의 비효율", "mood": 2, "text": "내부적으로 정해지지 않은 상황에서 조급한 외부와의 회의 셋업"}, {"id": "v2_e082", "date": "2026-10-29", "cl": "CL3", "cat": "회의 비효율", "mood": 4, "text": "weekly meeting 이 도움이 되었지만 회의를 위한 준비에 시간 소모 부담"}, {"id": "v2_e083", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 4, "text": "불만은 있었지만, 그래도 그룹원들이 잘 따라와줬기 때문에 이정도 성과가 나온거고 서로 잘 맞추어가면 될 것 같다."}, {"id": "v2_e084", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "AI 무슨 회의인지 모르는 것들이 있었다."}, {"id": "v2_e085", "date": "2026-10-29", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "AI 로 도대체 뭘 할 수 있는지 막막하다."}, {"id": "v2_e086", "date": "2026-10-29", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "그룹의 중요 방향에 대한 정기적 업데이트가 있으면 좋겠다."}, {"id": "v2_e087", "date": "2026-10-29", "cl": "CL4", "cat": "회의 비효율", "mood": 2, "text": "연초 TP 관련 회의 진행 시 목적, 이 사람들이 왜 같이 모였는지 모를 때가 있었다."}, {"id": "v2_e088", "date": "2026-10-29", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "목표 설정에 대한 이해도가 다 다르다."}, {"id": "v2_e089", "date": "2026-10-29", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "채근하고 AI 업무에 대한 push"}, {"id": "v2_e090", "date": "2026-10-29", "cl": "CL4", "cat": "보상·평가", "mood": 2, "text": "과제 할수록 적자인데 왜하지? motivation 도 없는데..."}, {"id": "v2_e091", "date": "2026-10-29", "cl": "CL4", "cat": "AI/AX 적응", "mood": 2, "text": "VP, AI 등으로 변화에 따라 개선하려는 그룹장 입장 이해되지만 사람들의 입장은 다 다르다."}, {"id": "v2_e092", "date": "2026-10-29", "cl": "CL4", "cat": "협업·R&R", "mood": 2, "text": "TL, PL 간의 소통이 잘되어야"}, {"id": "v2_e093", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "이슈에 대해서 개인 접촉하면 힘듦"}, {"id": "v2_e094", "date": "2026-10-29", "cl": "CL3", "cat": "AI/AX 적응", "mood": 2, "text": "PHY Tech seminar 를 주기적으로 regular 하게 하지 말고, 의미있는 전달사항이 발생 시에 진행하는 것이 좋겠다."}, {"id": "v2_e095", "date": "2026-10-29", "cl": "CL3", "cat": "프로세스 & 온보딩", "mood": 4, "text": "AI code review 에 대해서 도움이 많이 되었다."}, {"id": "v2_e096", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 5, "text": "올 해 과제를 진행하면서 원하는 성과를 거두었다고 생각하고 만족한다."}, {"id": "v2_e097", "date": "2026-10-29", "cl": "CL4", "cat": "프로세스 & 온보딩", "mood": 2, "text": "post mortem 에 대한 부담감, 불편함이 있었고 취지에 대해서 이해를 하지 못하는 경우가 있다"}, {"id": "v2_e098", "date": "2026-10-29", "cl": "CL2", "cat": "프로세스 & 온보딩", "mood": 2, "text": "경험자는 크게 어려움이 없지만 새로온 사람들 업무 적응에 배려가 필요"}, {"id": "v2_e099", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "NR, AI, Git 사용 등에 적응해야겠다는 생각이 있다."}, {"id": "v2_e100", "date": "2026-10-29", "cl": "CL2", "cat": "AI/AX 적응", "mood": 2, "text": "AI 업무가 따라가기 힘들다. 함께 갈 수 있는 방법 고민 필요하다"}, {"id": "v2_e101", "date": "2026-10-29", "cl": "CL4", "cat": "소통·배경설명", "mood": 2, "text": "직설적인 설명보다는 말을 잘 풀어서 해야한다."}, {"id": "v2_e102", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "그룹장은 항상 일에만 좇기는 것 같다"}, {"id": "v2_e103", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 4, "text": "좋게 말하면 추진력이 좋다고 할 수 있겠지만, 조급하게 서둘러 일을 먼저 벌이는 것 같다"}, {"id": "v2_e104", "date": "2026-10-29", "cl": "CL3", "cat": "소통·배경설명", "mood": 2, "text": "방향이 맞지 않거나 틀린것이 있더라도 나중에 별도로 TL 을 통해서 전달하자"}, {"id": "v2_e105", "date": "2026-10-29", "cl": "CL3", "cat": "과제 과중 & 리소스", "mood": 2, "text": "과제별 참여 인원을 모집하다보니 도메인 파트에서의 role 이 개인에게 몰리고 업무 과중"}, {"id": "v2_e106", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "그룹장이 바쁘고 좇기는 듯한 상황이라서 그룹 조직 문화에 대한 소통, 협의할 시간이 충분하지 않음"}, {"id": "v2_e107", "date": "2026-10-29", "cl": "CL4", "cat": "리더십 소통", "mood": 2, "text": "리더에게 의견 전달 시에 정신적 여유가 없어보인다."}, {"id": "v2_p01", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 5, "text": "GitHub 는 LLM 사용하면 다 해주기 때문에 예를 들어 Open code 에 rebase/merge 해서 다시 PR 생성해줘. 와 같은 식으로 AI를 활용하면 쉽게 된다."}, {"id": "v2_p02", "date": "2026-10-16", "cl": "CL4", "cat": "소통·배경설명", "mood": 3, "text": "push 가 초반에 있었고, 과제진행할게 연습 샘플(HW Change List ) 가 부족하다."}, {"id": "v2_p03", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "AX 업무에 재미가 있긴 한데 깊게 들어가고 싶은 분야를 정하고 싶고 더 공부를 하고 싶다.\nPHY brain 을 만들어서 운영하고 싶은데, 컨텐츠 축적과 소스 확보가 힘들다."}, {"id": "v2_p04", "date": "2026-10-16", "cl": "CL4", "cat": "협업·R&R", "mood": 3, "text": "junior 와 senior 의 간극이 존재. 다가서기 쉽지 않고, 각자 업무 진행하느라 대화의 시간이 필요하다."}, {"id": "v2_p05", "date": "2026-10-16", "cl": "CL4", "cat": "이슈처리 구조", "mood": 3, "text": "PHY 자체의 이슈 처리나 고객 이슈 대응의 기본 강도와 어려움이 존재해서 기본적인 고충의 레벨이 다르다."}, {"id": "v2_p06", "date": "2026-10-16", "cl": "CL4", "cat": "AI/AX 적응", "mood": 3, "text": "초기 AX 과제 회의 때 특별한 output 이나 의미있는 output 도 없는데 회의가 부담이 됨"}, {"id": "v2_p07", "date": "2026-10-16", "cl": "CL4", "cat": "프로세스 & 온보딩", "mood": 3, "text": "code review 같은 경우 team, group, 개별 코드 리뷰 dashboard 에 대해서 통합하는 방향으로 가는게 좋겠다."}, {"id": "v2_p08", "date": "2026-10-16", "cl": "CL3", "cat": "회의 비효율", "mood": 3, "text": "회의가 많아졌다."}, {"id": "v2_p09", "date": "2026-10-16", "cl": "CL3", "cat": "협업·R&R", "mood": 2, "text": "선행 파트에서의 과제들이 셋업되면서 도메인으로 담당자들이 지정되어서 업무 가중됨. 선행파트에서 뭘 하는지 모르겠다.\n선행파트에서 진행되는 일에 대한 홍보가 부족하다. 도메인으로 할당되는 일들의 의미도 모른채 업무 진행해야해서 맥락 이해가 안된다."}, {"id": "v2_p10", "date": "2026-10-16", "cl": "CL3", "cat": "이슈처리 구조", "mood": 3, "text": "KPI 그룹 활동으로 줄기는 했지만, 여전히 이슈가 PHY 로 바로 꽂히는 이슈들로 여전히 괴롭다.\n확인해야 하는 구간을 보지 않고 단순 keyword search 로 이슈 전달하는 상위 담당자가 있다. RRC"}, {"id": "v2_p11", "date": "2026-10-16", "cl": "CL3", "cat": "회의 비효율", "mood": 3, "text": "회의 진행 시 참석자들이 말을 안한다. 회의를 하면 말하는 사람들만 말한다."}, {"id": "v2_p12", "date": "2026-10-16", "cl": "CL3", "cat": "AI/AX 적응", "mood": 3, "text": "AI 를 적극적으로 사용하지 않는 사람들이 있는데 AI 과제에서 도대체 뭘 하는지 모르겠다. 원인은 그룹원들에게 benefit 홍보가 안된다. group 의 AX 업무 소개나 PHY group 의 tech seminar 에 대해서 regular 하게 진행되었으면 좋겠고, 사전 공지가 잘 되었으면 좋겠다."}, {"id": "v2_p13", "date": "2026-10-16", "cl": "CL3", "cat": "AI/AX 적응", "mood": 3, "text": "세미나 홍보는 파트 단위로도 공지되는 체계가 있어야 한다. 그룹 단위 일괄 공지는 놓치기 쉽다."}];
+
+const CATS_V1 = ["AI/AX 적응","GitHub/VCS","회의 비효율","소통·배경설명","정체성·커리어","보상·평가","리더십 소통","이슈처리 구조","기타"];
+const CATS_V2 = ["AI/AX 적응","GitHub/VCS","회의 비효율","소통·배경설명","정체성·커리어","보상·평가","리더십 소통","이슈처리 구조","협업·R&R","프로세스 & 온보딩","과제 과중 & 리소스","인정 & 심리적 안전감"];
+
 const CLS = ["CL2","CL3","CL4"];
-const CL_COLOR = {CL2:"var(--s1)",CL3:"var(--s2)",CL4:"var(--s3)"};
-const LS_KEY = "phy_1on1_records_v2";
+const CL_COLOR = { CL2:"#3987e5", CL3:"#256abf", CL4:"#0d366b" };
 
-// 익명화·요약된 초기 데이터 (2026-10-15 정리본 기준 53건, 카테고리순 집계. 개별 면담 단위로 재구성되지 않도록 날짜를 통일함)
-const SEED_DATE = "2026-10-15";
-const SEED = [
-  ["CL2","AI/AX 적응",2,"AI 활용 업무 전환·적응이 어려웠음"],
-  ["CL2","AI/AX 적응",4,"로그 보다 코드 찾을 때 AI 분석이 큰 도움"],
-  ["CL3","AI/AX 적응",4,"AI 응용이 실무에서 중요하다는 걸 알게 되어 흥미로움"],
-  ["CL4","AI/AX 적응",2,"초반 AI 업무 방향이 잡히지 않아 힘들었음"],
-  ["CL4","AI/AX 적응",4,"Tech Seminar를 AX 도구·워크플로 공유의 장으로 전환하는 데 동의"],
-  ["CL4","AI/AX 적응",2,"AI 시도의 노력이 상위 조직 방향 변화로 무용지물이 된 느낌"],
-  ["CL4","AI/AX 적응",2,"로그 분석 개선 노력이 메인 과제에 반영되지 않아 힘이 빠짐"],
-  ["CL4","AI/AX 적응",2,"코드 리뷰·지식 베이스·HW change 등 AI 도입 적응이 쉽지 않았음"],
-  ["CL4","AI/AX 적응",2,"AI 분석 리포트가 맥락 없이 전달되어 업무 진행이 어려움"],
-  ["CL2","GitHub/VCS",1,"특정 베이스 기준 수정 시 파일 history 보기 어려움"],
-  ["CL2","GitHub/VCS",1,"merge/rebase 시 commit이 꼬이면 처음부터 다시 시작"],
-  ["CL3","GitHub/VCS",1,"상용 계획 없는 칩셋 폴더 때문에 CL 제출이 번거로움"],
-  ["CL4","GitHub/VCS",2,"P4→GitHub 전환 후 PR 제출에 반나절~하루"],
-  ["CL2","회의 비효율",2,"회의가 많다는 느낌"],
-  ["CL2","회의 비효율",4,"실제로 도움이 되는 회의도 있음"],
-  ["CL2","회의 비효율",1,"방향 미정 상태의 다수 참여 목적 없는 회의. 다음 주도 똑같을 것"],
-  ["CL4","회의 비효율",2,"연초 과제 회의와 과제 수가 너무 많았음"],
-  ["CL4","회의 비효율",1,"참석 이유를 모르겠는 회의, 이름만 다른 중복 회의"],
-  ["CL2","소통·배경설명",2,"개선 activity가 끝났는지 확인 없이 흐지부지"],
-  ["CL2","소통·배경설명",2,"일의 목적·방향 설명이 필요"],
-  ["CL3","소통·배경설명",1,"구매·투자성 업무가 배경 설명 없이 갑자기 배정됨"],
-  ["CL3","소통·배경설명",2,"일의 절차에 대한 설명이 아쉬움"],
-  ["CL4","소통·배경설명",2,"담당자를 파트별로 나눠 배정하면서 맥락 전달이 끊김"],
-  ["CL4","소통·배경설명",2,"상용 이슈와 선행 과제를 동시에 맡으면 우선순위를 정하기 어려움"],
-  ["CL4","소통·배경설명",1,"개발·상용 마일스톤 전체가 어떻게 돌아가는지 전혀 모름"],
-  ["CL4","소통·배경설명",2,"리더 간 업무 방향 alignment 필요"],
-  ["CL2","정체성·커리어",1,"HW 블락·test binary 작업 시 현타. test engineer 같다는 느낌"],
-  ["CL2","정체성·커리어",2,"선행 파트 생성 후 나아진 게 무엇인지 의문"],
-  ["CL2","정체성·커리어",5,"선행 파트 업무가 재미있고 역할에 만족"],
-  ["CL3","정체성·커리어",1,"모뎀 개발팀 sub로 일하는 느낌. 선행 파트가 진짜 SW 업무처럼 보임"],
-  ["CL3","정체성·커리어",1,"차라리 모뎀 개발팀에서 일하는 게 나아 보임"],
-  ["CL3","정체성·커리어",2,"상위단 업무가 더 맞는다는 의견도 있음"],
-  ["CL4","정체성·커리어",2,"주니어·시니어 접점이 사라져 따로 일하는 느낌"],
-  ["CL4","정체성·커리어",3,"AI·최신 스킬을 함께 배워갈 방법이 필요"],
-  ["CL4","정체성·커리어",3,"기술 트렌드 학습 전용 time slot 필요"],
-  ["CL2","보상·평가",1,"고과에 대한 불만족 의견 다수"],
-  ["CL2","보상·평가",1,"보상·당근, 결국 돈"],
-  ["CL2","보상·평가",3,"이슈 해결한 사람에게 당근을 주자"],
-  ["CL4","보상·평가",1,"열심히 해도 적자인데 뭐하러 하나는 인식이 팽배"],
-  ["CL2","리더십 소통",2,"예고 없는 자리 방문이 부담으로 느껴짐"],
-  ["CL2","리더십 소통",3,"급하더라도 부서원을 믿고 기다려 달라"],
-  ["CL4","리더십 소통",2,"AI 관심이 급격히 높아져 방향이 자주 바뀌는 느낌"],
-  ["CL4","리더십 소통",2,"리더의 불안과 조급함이 구성원에게 압박으로 전달됨"],
-  ["CL4","리더십 소통",1,"어려운 이슈 해결 후 인정 없이 바로 post-mortem이 요구되는 부담"],
-  ["CL4","리더십 소통",3,"이번 평가는 그룹이 바뀌길 바라는 의지의 표현"],
-  ["CL4","리더십 소통",1,"요청과 지시가 구성원에게 큰 부담으로 누적됨"],
-  ["CL4","리더십 소통",2,"상위 보고용으로 보이는 업무가 많다는 인식"],
-  ["CL4","리더십 소통",3,"할 것을 찾기보다 하지 말아야 할 것을 생각해보자"],
-  ["CL2","이슈처리 구조",1,"PHY가 종단이라 이슈 짬처리 느낌"],
-  ["CL4","이슈처리 구조",1,"주니어들의 피해의식이 심함. 이슈의 종착점이라는 느낌"],
-  ["CL4","이슈처리 구조",2,"사업자·외부·TE 이슈 처리 과정이 초보자에게 낯섦. 가이드 필요"],
-  ["CL4","이슈처리 구조",1,"PHY가 종단이라 원인 불명 이슈가 NW issue로 처리되며 어려움"],
-  ["CL4","이슈처리 구조",2,"DL BLER 발생 시 demod로 자동 할당. 약전계 이슈도 쉽지 않음"]
-].map((r,i)=>({id:"s"+i,date:SEED_DATE,cl:r[0],cat:r[1],mood:r[2],text:r[3]}));
+let curVersion = "v2";
+let CATS = CATS_V2;
 
-const ROOT_CAUSES = [
-  ["회의가 많고 목적이 없다","과제 수(AX·기술부채·절차 개선·해외 연구소 관리)가 인원 대비 과다 → 과제마다 회의 신설","① 회의 효율, ④ 의사결정"],
-  ["왜 하는지 모르겠다","과제가 할당만 되고 배경·마일스톤이 함께 내려가지 않음. TL별 분할 배정으로 맥락 단절","③ 목적·배경 설명"],
-  ["이슈 짬처리, test engineer 같다","PHY가 스택 종단 → 원인 불명 이슈의 기본 도착지. 선행·상용 간 역할 비대칭","② 고충 해결, ⑤ 전배"],
-  ["열심히 해도 소용없다","적자 사업부 성과급 60% + 리더가 사측 위치라 방어막 역할 한계","② 고충 해결"],
-  ["개선 activity가 흐지부지","시작은 많고 종료 선언·회고 없음. 노력이 메인 과제에 미반영 → 학습된 무력감","③ 목적·배경, ④ 의사결정"],
-  ["리더가 부담스럽다","직설적 소통 + 사기진작 부재 + 이슈 해결 직후 post-mortem → '요청 = 숙제'로 학습","② 고충 해결"],
-  ["GitHub가 너무 느리다","교육 없는 전환 + 브랜치마다 남은 레거시 칩셋 폴더가 CL/PR 오버헤드 가중","①④ (간접)"]
+function getLSKey(){ return curVersion === "v2" ? "phy_1on1_records_v2" : "phy_1on1_records_v1"; }
+
+/* Static Data V2 */
+const ROOT_CAUSES_V2 = [{"symptom": "선행 파트 생기고 도메인은 뒤처지는 느낌", "cause": "선행-도메인 파트 분리 후 성과·툴 공유 루프 및 상용 파트 참여 기회(로테이션) 부재", "sci": "② 고충 해결 노력, ⑤ 전배·조직 만족도"}, {"symptom": "새 업무 받으면 맨땅 헤딩, 개선 과제는 흐지부지", "cause": "신규 업무 온보딩 체크리스트 부재 + 과제 셋업 후 종료 기준과 팔로업 루프 결여 (용두사미)", "sci": "③ 목적·배경 설명, ④ 의사결정 효율"}, {"symptom": "회의는 많은데 참석자들은 침묵", "cause": "아젠다/발언 대상 미정 상태 다인원 소집 + 회의 발언에 대한 피드백·심리적 안전감 결여", "sci": "① 회의 효율, ④ 의사결정 효율"}, {"symptom": "그룹장이 오면 불안하고 조급함이 전이됨", "cause": "리더의 디테일과 속도가 여유 없는 직접 방문·채근 형태로 표출 + 중간 관리자 채널 우회", "sci": "② 고충 해결 노력, ③ 목적·배경 설명"}, {"symptom": "이슈 해결해도 당근 없고 숙제(Post-mortem)만 옴", "cause": "Recognition First(인정 먼저) 절차 부재 + Post-mortem이 처벌·추가 업무로 인식됨", "sci": "② 고충 해결 노력, 심리적 안전감"}, {"symptom": "과제는 늘고 도메인 파트 인원만 쏠림", "cause": "과제 공모 시 도메인 필수 인력 보호 장치 부재 + 상용 이슈 담당자의 이중 과부하", "sci": "① 회의 효율, ② 고충 해결 노력"}, {"symptom": "HW 이슈로 반복 바이너리 빌드 및 테스트 수족 느낌", "cause": "빌드 자동화 도구 부재 및 모뎀 개발팀과의 1차 재현 검증 R&R 모호", "sci": "② 고충 해결 노력, ⑤ 전배·조직 만족도"}];
+const ACTIONS_V2 = [{"term": "단기", "title": "Stop-List 10선 공식 선언 및 회의 30% 감축", "owner": "그룹장", "kpi": "회의 30% 감축, 보류 과제 목록 공개", "cats": ["회의 비효율", "과제 과중 & 리소스"]}, {"term": "단기", "title": "Recognition First: 24시간 내 인정 메시지 의무화", "owner": "그룹장, TL", "kpi": "이슈 해결 건당 인정 100%", "cats": ["인정 & 심리적 안전감", "리더십 소통"]}, {"term": "단기", "title": "신규 업무 온보딩 SOP & 버디 매칭 의무화", "owner": "TL, 파트장", "kpi": "구두 지시 0건, 온보딩 SOP 100%", "cats": ["프로세스 & 온보딩"]}, {"term": "단기", "title": "회의 3P 강제 및 코드리뷰 조기 퇴장 룰 시행", "owner": "TL", "kpi": "개인 집중 코딩 시간 주 2시간 회수", "cats": ["회의 비효율", "프로세스 & 온보딩"]}, {"term": "단기", "title": "레거시 칩셋 폴더 정리 (Quick-Win)", "owner": "TL, 시니어", "kpi": "CL/PR 영향 폴더 70% 감소", "cats": ["GitHub/VCS"]}, {"term": "단기", "title": "그룹장 직접 방문 금지 및 1on1 사전 예약제", "owner": "그룹장", "kpi": "자리 불시 방문 0건, 사전 예약 100%", "cats": ["리더십 소통"]}, {"term": "중기", "title": "선행-도메인 툴 피드백 싱크 및 Bring-up 순환제", "owner": "파트장", "kpi": "피드백 반영 건수, 순환 인원 수", "cats": ["협업·R&R", "정체성·커리어"]}, {"term": "중기", "title": "과제 완료 공식 선언제 (Follow-up 회고 루프)", "owner": "그룹장, TL", "kpi": "개선 과제 공식 회고율 100%", "cats": ["프로세스 & 온보딩", "과제 과중 & 리소스"]}, {"term": "중기", "title": "HW 바이너리 빌드 자동화 스크립트 배포", "owner": "시니어", "kpi": "빌드 소요 시간 80% 단축", "cats": ["이슈처리 구조"]}, {"term": "중기", "title": "GitHub 멘토링 페어링 (시니어 1 + 주니어 2)", "owner": "시니어", "kpi": "PR 리드타임 반나절 이내", "cats": ["GitHub/VCS", "협업·R&R"]}, {"term": "중기", "title": "Tech Time Slot (주 2시간 학습 블록)", "owner": "그룹장", "kpi": "주 2시간 참여율 90% 이상", "cats": ["AI/AX 적응", "정체성·커리어"]}, {"term": "장기", "title": "모뎀 개발팀-PHY 공식 R&R 협약 체결", "owner": "그룹장", "kpi": "오할당 이슈 50% 감축", "cats": ["정체성·커리어", "협업·R&R"]}, {"term": "장기", "title": "선행·상용 정기 직무 로테이션 체계 구축", "owner": "그룹장, 파트장", "kpi": "연간 직무 순환율 25%", "cats": ["정체성·커리어", "보상·평가"]}, {"term": "장기", "title": "기여도 다면 인정 체계 (상용이슈/멘토링/SOP)", "owner": "그룹장", "kpi": "평가 투명성 만족도", "cats": ["보상·평가", "인정 & 심리적 안전감"]}, {"term": "장기", "title": "SCI & 1on1 Action Tracker 대시보드 운영", "owner": "그룹장, CA", "kpi": "SCI 급락 5항목 완전 회복", "cats": ["소통·배경설명", "리더십 소통"]}];
+const STOPLIST_V2 = [{"prio": 1, "item": "방향 미정 상태의 다인원 과제 회의", "type": "회의", "action": "즉시 폐지 → 3명 이하 결정 회의 대체", "reason": "결정 없는 회의로 인한 주당 수 시간 손실"}, {"prio": 2, "item": "가이드 없는 신규 업무 구두 지시", "type": "프로세스", "action": "중단 → 1장 온보딩 가이드/버디 매칭 필수화", "reason": "유경험자 질문 식의 방치형 온보딩 불만 해소"}, {"prio": 3, "item": "종료 기준·사후 회고 없는 개선 activity", "type": "과제", "action": "중단 → 공식 종료 선언 및 사후 회고일 지정", "reason": "시작만 있고 끝이 없는 용두사미 무력감 차단"}, {"prio": 4, "item": "이름만 다른 중복 진도 점검 회의", "type": "회의", "action": "통합 1개 + Jira 비동기 코멘트 대체", "reason": "Jira 보드 비동기 코멘트로 통합 대체"}, {"prio": 5, "item": "상용 이슈 담당자의 신규 과제 중복 겸임", "type": "과제", "action": "겸임 해제 → 선행 과제는 선행 파트로 단일화", "reason": "우선순위 충돌 해소 및 상용 이슈 집중"}, {"prio": 6, "item": "코드리뷰 시 전원 끝까지 대기 강요", "type": "회의", "action": "폐지 → 본인 파트 완료 시 자유 퇴장 룰", "reason": "본인 파트 완료 시 자유 퇴장으로 코딩 시간 확보"}, {"prio": 7, "item": "상용 계획 없는 레거시 칩셋 폴더 유지", "type": "과제", "action": "archive 브랜치 분리 및 메인 브랜치 제거", "reason": "CL 제출 및 리뷰 오버헤드 가중 차단"}, {"prio": 8, "item": "이슈 해결 직후 당근 없는 Post-mortem 요구", "type": "프로세스", "action": "중단 → Recognition First 선행 후 1주 뒤 논의", "reason": "Recognition First 선행으로 심리적 안전감 회복"}, {"prio": 9, "item": "성과 미달 해외 연구소 과제 관리", "type": "과제", "action": "범위 축소 또는 공식 보류", "reason": "리더십 관리 리소스 국내 핵심 과제로 집중"}, {"prio": 10, "item": "메인 과제 연계 없는 파편화된 개인 AI 과제", "type": "과제", "action": "메인 과제 흡수 또는 공식 종료", "reason": "메인 과제 흡수로 구성원 노력의 정당한 가치 인정"}];
+const BOTTLENECKS_V2 = [{"area": "GitHub PR 흐름", "symptom": "PR 제출 반나절~하루, rebase 충돌", "cost": "주 2~4시간/인", "fix": "1장 브랜치 가이드, 필수 3항목 템플릿, 시니어-주니어 페어링"}, {"area": "레거시 칩셋 폴더", "symptom": "상용 계획 없는 폴더 잔존으로 CL 수정 범위 비대", "cost": "CL당 중복 수정", "fix": "미사용 폴더 archive 브랜치 분리 및 메인 제거"}, {"area": "회의 비효율", "symptom": "목적 불명 다인원 회의, 참석자 침묵", "cost": "주 3~5시간/인", "fix": "3P 기준 강제, Jira 비동기 전환, 코드리뷰 조기 퇴장 룰"}, {"area": "과제 과중 & 용두사미", "symptom": "도메인 파트 역할 쏠림, 개선 활동 사후관리 부재", "cost": "우선순위 혼선", "fix": "1-in-1-out 원칙, 과제 공식 종료 선언 및 사후 회고일 명시"}, {"area": "신규 업무 온보딩", "symptom": "신규 업무 부여 시 맨땅헤딩 지시", "cost": "착수 지연/불안", "fix": "1장 온보딩 체크리스트(SOP), 1:1 버디 매칭"}, {"area": "HW 바이너리 빌드", "symptom": "HW 이슈 대응 반복 빌드, 모뎀팀 수족 테스트", "cost": "효능감 저하", "fix": "빌드 자동화 스크립트, 모뎀팀 1차 검증 R&R 명문화"}, {"area": "이슈 짬통", "symptom": "DL BLER 원인 불명 이슈 자동 할당", "cost": "1차 분석 비용 과다", "fix": "KPI Group 1차 필터 확대, 상위 레이어 배제 체크리스트"}, {"area": "선행-도메인 툴 단절", "symptom": "선행 개발 도구가 도메인 실무에 피드백 안 됨", "cost": "파트 위화감", "fix": "격주 30분 툴 피드백 싱크 세션, Tech Seminar 도구 시연"}];
+const ROADMAP_V2 = [{"step": "1단계", "period": "0~1개월", "name": "멈추기와 인정 (신뢰 회복)", "tasks": "Stop-List 10선 공표, 3P 회의 선언 및 조기 퇴장 룰, 신규 업무 온보딩 SOP, Recognition First 24시간 내 인정 메시지"}, {"step": "2단계", "period": "1~3개월", "name": "프로세스 위생 & 협업 복원", "tasks": "과제 사후관리 Follow-up 루프 안착, 선행-도메인 툴 피드백 싱크, HW 바이너리 빌드 자동화, GitHub 시니어-주니어 페어링, Tech Time Slot"}, {"step": "3단계", "period": "3~6개월", "name": "정체성 & R&R 복원", "tasks": "모뎀 개발팀-PHY 공식 R&R 협약 체결, Bring-up 및 선행/상용 순환근무제 시범 운영"}, {"step": "4단계", "period": "6~12개월", "name": "문화 안착 & SCI 회복", "tasks": "기여도 다면 인정 체계 제도화, 분기별 커리어 비전 세션, SCI 급락 5항목 재측정 및 완전 회복"}];
+
+/* Static Data V1 */
+const ROOT_CAUSES_V1 = [
+  {"symptom":"회의가 많고 목적이 없다","cause":"과제 수(AX·기술부채·절차 개선·해외 연구소) 과다로 과제마다 회의 신설","sci":"① 회의 효율, ④ 의사결정 효율"},
+  {"symptom":"왜 하는지 모르겠다","cause":"과제가 그룹장→TL→담당자로 '할당'만 되고 배경·마일스톤 미공유","sci":"③ 목적·배경 설명"},
+  {"symptom":"이슈 짬처리 느낌, test engineer 같다","cause":"PHY가 모뎀 스택 종단 → 원인 불명 이슈 기본 도착지. 선행/상용 비대칭","sci":"② 고충 해결 노력, ⑤ 전배·job posting"},
+  {"symptom":"열심히 해도 소용없다","cause":"적자 사업부 성과급 60% 적용 + 리더가 사측 위치라 방어막 역할 못 함","sci":"② 고충 해결 노력"},
+  {"symptom":"개선 activity가 흐지부지","cause":"시작은 많고 종료 선언·회고 없음('용두사미'). 메인 과제 미반영","sci":"③ 목적·배경, ④ 의사결정"},
+  {"symptom":"그룹장이 부담스럽다","cause":"직설적 소통 + 사기진작 부재 + 이슈 해결 직후 post-mortem 요구","sci":"② 고충 해결 노력"},
+  {"symptom":"GitHub가 너무 느리다","cause":"P4→GitHub 전환이 교육 없이 진행. 레거시 칩셋 폴더 방치","sci":"① 회의 효율(간접), ④ 의사결정(간접)"}
 ];
 
-const ACTIONS = [
-  {id:"S1",term:"단기",title:"Stop-List 공식 선언",owner:"그룹장",kpi:"정기 회의 30% 감축",cats:["회의 비효율","리더십 소통"]},
-  {id:"S2",term:"단기",title:"레거시 칩셋 폴더 정리 (Quick-Win 1호)",owner:"TL·시니어",kpi:"archive 이동 완료",cats:["GitHub/VCS"]},
-  {id:"S3",term:"단기",title:"회의 3P 선언 · 진도 점검 Jira 비동기",owner:"그룹장·TL",kpi:"정기 회의 3P 기재 100%",cats:["회의 비효율","소통·배경설명"]},
-  {id:"S4",term:"단기",title:"Recognition First (인정 먼저, post-mortem은 1주 뒤 Blameless)",owner:"그룹장·TL",kpi:"이슈 해결 건당 인정 1회",cats:["리더십 소통","이슈처리 구조"]},
-  {id:"S5",term:"단기",title:"CA·총무 간담회 (Stop-Start-Continue 워크숍)",owner:"그룹장",kpi:"Stop/Start/Continue 각 3개",cats:["리더십 소통"]},
-  {id:"S6",term:"단기",title:"1on1 사전 예약 · 16-8-4 법칙",owner:"그룹장",kpi:"사전 예약률 100%",cats:["리더십 소통"]},
-  {id:"M1",term:"중기",title:"GitHub 시니어-주니어 페어링 (2주 단위)",owner:"TL",kpi:"PR 리드타임 반나절 이내",cats:["GitHub/VCS","정체성·커리어"]},
-  {id:"M2",term:"중기",title:"Tech Time Slot 주 2시간 (회의 금지 시간대)",owner:"그룹장",kpi:"캘린더 블록·참여율",cats:["AI/AX 적응","정체성·커리어"]},
-  {id:"M3",term:"중기",title:"TL 중심 과제 브리프 (왜·언제까지·무엇을 안 할지)",owner:"그룹장·TL",kpi:"브리프 작성 100%",cats:["소통·배경설명"]},
-  {id:"M4",term:"중기",title:"격주 마일스톤 1장 공유",owner:"그룹장",kpi:"격주 1회",cats:["소통·배경설명"]},
-  {id:"M5",term:"중기",title:"PHY Tech Seminar → AX 도구·워크플로 공유의 장",owner:"시니어",kpi:"월 1회",cats:["AI/AX 적응"]},
-  {id:"M6",term:"중기",title:"AI 리포트 2줄 요약 + 우선순위 태그",owner:"AX 담당",kpi:"리포트 처리율",cats:["AI/AX 적응"]},
-  {id:"M7",term:"중기",title:"초보자 이슈 처리 가이드·접수 체크리스트",owner:"시니어",kpi:"가이드 배포",cats:["이슈처리 구조"]},
-  {id:"L1",term:"장기",title:"선행·상용 6개월 로테이션",owner:"그룹장·TL",kpi:"로테이션 인원",cats:["정체성·커리어"]},
-  {id:"L2",term:"장기",title:"이슈 1차 분석 필터 제도화 (DL BLER 자동 할당 폐지)",owner:"그룹장·유관 그룹",kpi:"오할당 비율 감소",cats:["이슈처리 구조"]},
-  {id:"L3",term:"장기",title:"평가 기준 투명화 (이슈 해결·가이드·멘토링 명시)",owner:"그룹장",kpi:"기준 문서 공개",cats:["보상·평가"]},
-  {id:"L4",term:"장기",title:"분기 커리어 비전 세션",owner:"그룹장",kpi:"분기 1회",cats:["정체성·커리어","보상·평가"]},
-  {id:"L5",term:"장기",title:"SCI 재측정 · 1on1 Action Item 트래킹",owner:"그룹장",kpi:"급락 5항목 회복",cats:["전체"]}
-];
-const STOPLIST = [
-  [1,"방향 미정 상태의 다인원 과제 회의","회의","결정 없는 회의. 3명 이하 결정 회의로 대체"],
-  [2,"이름만 다른 중복 진도 점검 회의","회의","통합 1개 + Jira 비동기"],
-  [3,"참석 이유 불명확한 전체 참석 회의","회의","3P 미충족. 필수 참석자만"],
-  [4,"종료 기준 없는 그룹 내 개선 activity","과제","흐지부지 반복. 공식 보류 선언"],
-  [5,"상용 이슈 담당자의 선행 과제 겸임","과제","우선순위 충돌"],
-  [6,"상용 계획·regression 없는 레거시 칩셋 폴더","과제","CL 제출 오버헤드"],
-  [7,"성과 미달 해외 연구소 과제","과제","관리 로드가 국내 과제 잠식"],
-  [8,"메인에 반영 안 되는 개인 AI 사이드 과제","과제","노력 미반영. 메인에 흡수 또는 종료"]
-];
-const ROADMAP = [
-  [1,"CA·총무 간담회","1~2주차","Stop-List 확정본"],
-  [2,"TL 미팅·R&R 재정립","2~3주차","과제 브리프 템플릿"],
-  [3,"전체 공지·Quick-Win 1호","3~4주차","레거시 폴더 정리 완료"],
-  [4,"Tech Time Slot·트래킹","2개월차~","대시보드·분기 리포트"]
-];
-const BOTTLENECKS = [
-  ["GitHub PR 흐름","PR 반나절~하루, rebase 꼬임","주니어 주 2~4h (추정)","브랜치 가이드 1장, PR 템플릿 3항목, 시니어 페어링"],
-  ["레거시 칩셋 폴더","상용 계획 없는 폴더가 CL마다 수정 대상","CL당 중복 수정·리뷰","인벤토리 → archive → 메인 제거"],
-  ["회의","중복·목적 없는 회의 반복","1인 주 3~5h (추정)","3P 미기재 폐지, Jira 비동기"],
-  ["과제 중복 할당","AX·기술부채·절차 개선·해외 연구소 과제가 동시 진행","모두 50% 진행","1인 1과제, 1-in-1-out"],
-  ["이슈 라우팅","DL BLER→demod 자동 할당, PHY 종착점","1차 분석 전담","접수 체크리스트, 초보자 플로우차트"],
-  ["AI 리포트 전달","맥락 없는 분석 리포트","해석 시간, 신뢰 저하","2줄 요약 + 우선순위 태그"]
+const STOPLIST_V1 = [
+  {"prio":1,"item":"방향 미정 상태의 다인원 과제 회의","type":"회의","action":"폐지 → 3명 이하 결정 회의로 대체","reason":"결정 없는 회의는 비용만 발생"},
+  {"prio":2,"item":"이름만 다른 중복 진도 점검 회의","type":"회의","action":"통합 1개 + Jira 비동기","reason":"같은 내용을 여러 회의에서 반복 보고"},
+  {"prio":3,"item":"참석 이유가 불명확한 전체 참석 회의","type":"회의","action":"People 명시 후 필수 참석자만","reason":"3P 미충족"},
+  {"prio":4,"item":"종료 기준 없는 그룹 내 개선 activity","type":"과제","action":"종료 기준·오너·마감 없는 항목 공식 보류","reason":"'흐지부지' 반복이 학습된 무력감의 원천"},
+  {"prio":5,"item":"상용 이슈 담당자의 선행 과제 겸임","type":"과제","action":"겸임 해제, 선행 과제는 선행 파트로","reason":"우선순위 충돌, 양쪽 모두 지연"},
+  {"prio":6,"item":"상용 계획·regression 없는 레거시 칩셋 폴더","type":"과제","action":"archive 후 메인 제거","reason":"CL 제출 오버헤드"},
+  {"prio":7,"item":"성과 미달 해외 연구소 과제","type":"과제","action":"범위 축소 또는 보류","reason":"관리 로드가 국내 과제를 잠식"},
+  {"prio":8,"item":"메인 과제에 반영되지 않는 개인 AI 사이드 과제","type":"과제","action":"메인 log analysis 과제에 흡수하거나 종료","reason":"노력이 반영 안 되어 사기 저하"}
 ];
 
-/* CASES / STORIES: bigtech-benchmark-researcher 산출물 (docs/04_빅테크_사례.md 요약) */
+const BOTTLENECKS_V1 = [
+  {"area":"GitHub PR 흐름","symptom":"PR 제출에 반나절~하루, commit 꼬임","cost":"주니어 주 2~4시간 손실","fix":"1장 가이드, PR 템플릿 3개 축소, 페어링 2주"},
+  {"area":"레거시 칩셋 폴더","symptom":"미사용 칩셋 폴더가 브랜치마다 다수 잔존","cost":"CL당 중복 수정·리뷰","fix":"인벤토리 후 archive 이동, 메인 제거"},
+  {"area":"회의","symptom":"중복 회의, 불명확 참석, 방향 미정","cost":"1인당 주 3~5시간","fix":"3P 기준 강제, Jira 비동기 전환, 정기 회의 30% 감축"},
+  {"area":"과제 중복 할당","symptom":"AX·기술부채·개선·해외과제 동시 진행","cost":"우선순위 부재, 모두 50% 진행","fix":"종료 기준 없는 과제 보류, 1인 1과제 원칙"},
+  {"area":"이슈 라우팅","symptom":"DL BLER 시 demod 자동 할당, PHY 짬처리","cost":"1차 분석 비용 PHY 전담","fix":"KPI Group 1차 분석 강화, 이슈 체크리스트"},
+  {"area":"AI 리포트 전달","symptom":"AI 분석 리포트가 맥락 없이 전달","cost":"해석 시간 소모, 신뢰 저하","fix":"2줄 요약 필수, 우선순위 태그 부여"}
+];
+
+const ROADMAP_V1 = [
+  {"step":"1단계","period":"0~1개월","name":"멈추기와 인정","tasks":"Stop-List 공지, 레거시 폴더 정리, 3P 회의 선언, Recognition First 즉시 적용"},
+  {"step":"2단계","period":"1~3개월","name":"구조 바꾸기","tasks":"GitHub 페어링, Tech Time Slot 주 2시간, TL 중심 과제 브리프, 격주 마일스톤 공유"},
+  {"step":"3단계","period":"3~6개월","name":"정체성과 커리어","tasks":"선행·상용 로테이션, 이슈 1차 분석 필터 제도화, 평가 기준 투명화"},
+  {"step":"4단계","period":"6~12개월","name":"문화 안착","tasks":"커리어 비전 세션, SCI 재측정, 1on1 Action Item 트래커 운영"}
+];
+
 const CASES = [
   {company:"Etsy",title:"Blameless Postmortem과 '세 팔 스웨터' 상",cats:["리더십 소통","이슈처리 구조"],
    problem:"하루 수십 번 배포로 장애가 잦았고, '누가 잘못했나' 방식은 엔지니어가 문제를 숨기게 만들어 같은 실패가 반복됐다.",
@@ -468,17 +491,88 @@ const STORIES = [
    sources:[{title:"The Register, Windows is now built on Git (2017)",url:"https://www.theregister.com/2017/05/25/windows_is_now_built_on_git/"},{title:"InfoQ, Microsoft Moves Windows Development to Git (2017)",url:"https://www.infoq.com/news/2017/05/microsoft-windows-git"},{title:"Brian Harry, Perf results on scaling Git with GVFS (2017)",url:"https://devblogs.microsoft.com/vsnews/?p=2386"}]}
 ];
 
-/* ───────────── 상태 ───────────── */
+/* ───────────── 상태 및 버전 관리 ───────────── */
 let records = load();
-function load(){ try{ const r = JSON.parse(localStorage.getItem(LS_KEY)); if(Array.isArray(r) && r.length) return r; }catch(e){} return SEED.map(x=>({...x})); }
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(records)); }
+
+function load(){
+  try {
+    const r = JSON.parse(localStorage.getItem(getLSKey()));
+    if(Array.isArray(r) && r.length) return r;
+  }catch(e){}
+  const seed = curVersion === "v2" ? SEED_V2 : SEED_V1;
+  return seed.map(x=>({...x}));
+}
+
+function save(){
+  localStorage.setItem(getLSKey(), JSON.stringify(records));
+}
+
+function switchVersion(ver){
+  curVersion = ver;
+  CATS = curVersion === "v2" ? CATS_V2 : CATS_V1;
+  records = load();
+
+  // Update UI Elements
+  const isV2 = curVersion === "v2";
+  document.getElementById("versionBanner").innerHTML = isV2 
+    ? "<div><strong>v2.0 종합 전수 분석 모드:</strong> 과거 누적 13건 + 신규 107건(21명 인터뷰 전원)을 완전 병합한 120건 마스터 데이터셋과 12대 확장 카테고리 진단 결과를 표시 중입니다.</div><div style='font-size:12px;color:#1e5aa0'>버전 선택기로 과거 v1.0 즉시 롤백/비교 가능</div>"
+    : "<div><strong>v1.0 초기 스냅샷 모드:</strong> 2026-10-18 기준 초기 66건 분석 결과와 8대 카테고리 진단 데이터를 표시 중입니다. (과거 버전 보존 모드)</div><div style='font-size:12px;color:#1e5aa0'>v2.0으로 전환 시 전수 종합 분석 확인 가능</div>";
+
+  document.getElementById("vLabel").innerText = isV2 ? "v2.0 종합 (120건)" : "v1.0 초기 (66건)";
+  document.getElementById("kPsych").innerHTML = isV2 ? '2.1<span style="font-size:18px;color:var(--muted)"> / 5</span>' : '2.0<span style="font-size:18px;color:var(--muted)"> / 5</span>';
+  document.getElementById("kPsychDesc").innerText = isV2 ? "낮음 · 회복 기로 (인정 선행 및 온보딩 시급)" : "낮음 · 인정 없는 post-mortem, 리더 방문 부담";
+
+  // Top blockers
+  const blockersList = document.getElementById("topBlockersList");
+  if(isV2){
+    blockersList.innerHTML = `
+      <li><strong>선행-도메인 파트 위화감 및 R&R 단절</strong> (선행 툴 피드백 & Bring-up 순환제)</li>
+      <li><strong>신규 업무 온보딩 부재 및 용두사미 사후관리</strong> (1장 SOP & 과제 종료 회고 의무화)</li>
+      <li><strong>리더십 직접 압박 완화 및 Recognition First</strong> (자리 불시방문 금지 & 당근 선행)</li>
+    `;
+  } else {
+    blockersList.innerHTML = `
+      <li><strong>"요청 = 추가 숙제" 학습</strong> (인정 없는 post-mortem)</li>
+      <li><strong>"종착점·sub"라는 정체성 손상</strong></li>
+      <li><strong>"어차피 흐지부지"라는 학습된 무력감</strong></li>
+    `;
+  }
+
+  updateCatSelects();
+  renderAll();
+}
+
+function updateCatSelects(){
+  const iCat = document.getElementById("iCat");
+  iCat.innerHTML = "";
+  CATS.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.innerText = c;
+    iCat.appendChild(opt);
+  });
+
+  const fCaseCat = document.getElementById("fCaseCat");
+  fCaseCat.innerHTML = '<option value="">전체 카테고리</option>';
+  CATS.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.innerText = c;
+    fCaseCat.appendChild(opt);
+  });
+}
+
 function filtered(){
   const cl = document.getElementById("fCL").value, range = document.getElementById("fRange").value;
   let rs = records.slice();
   if(cl) rs = rs.filter(r=>r.cl===cl);
-  if(range!=="all"){ const max = rs.reduce((m,r)=>r.date>m?r.date:m,"0000-00-00"); const d = new Date(max); d.setDate(d.getDate()-Number(range)); const lim = d.toISOString().slice(0,10); rs = rs.filter(r=>r.date>=lim); }
+  if(range!=="all"){
+    const max = rs.reduce((m,r)=>r.date>m?r.date:m,"0000-00-00");
+    const d = new Date(max); d.setDate(d.getDate()-Number(range));
+    const lim = d.toISOString().slice(0,10);
+    rs = rs.filter(r=>r.date>=lim);
+  }
   return rs;
 }
+
 const isNeg = r=>r.mood<=2, isPos = r=>r.mood>=4;
 
 /* ───────────── 툴팁 ───────────── */
@@ -494,187 +588,357 @@ const svgEl = (t,a={})=>{ const e=document.createElementNS("http://www.w3.org/20
 function drawHeatmap(rs){
   const host = document.getElementById("heatmap"); host.innerHTML = "";
   const cell = {}; let max = 1;
-  CATS.forEach(c=>CLS.forEach(l=>{ const n = rs.filter(r=>r.cat===c&&r.cl===l&&isNeg(r)).length; const all = rs.filter(r=>r.cat===c&&r.cl===l); cell[c+l] = {n, all:all.length, avg: all.length? (all.reduce((s,r)=>s+r.mood,0)/all.length):null}; if(n>max) max=n; }));
+  CATS.forEach(c=>CLS.forEach(l=>{
+    const n = rs.filter(r=>r.cat===c&&r.cl===l&&isNeg(r)).length;
+    const all = rs.filter(r=>r.cat===c&&r.cl===l);
+    cell[c+l] = {n, all:all.length, avg: all.length? (all.reduce((s,r)=>s+r.mood,0)/all.length):null};
+    if(n>max) max=n;
+  }));
   const ramp = ["#f1f1ee","#cde2fb","#9ec5f4","#6da7ec","#3987e5","#256abf","#184f95","#0d366b"];
   const colorFor = n => n===0 ? ramp[0] : ramp[1 + Math.min(6, Math.round((n/max)*6))];
-  const W = host.clientWidth || 700, labelW = 120, colW = Math.floor((W-labelW-8)/3), rowH = 36, H = rowH*CATS.length + 30;
-  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":"직급별 카테고리 부정 항목 수 히트맵"});
-  CLS.forEach((l,j)=>{ const t = svgEl("text",{x:labelW+colW*j+colW/2,y:18,"text-anchor":"middle",class:"axis-label"}); t.textContent=l; svg.appendChild(t); });
-  CATS.forEach((c,i)=>{
-    const y = 30 + i*rowH;
-    const t = svgEl("text",{x:labelW-10,y:y+rowH/2+4,"text-anchor":"end"}); t.textContent = c; svg.appendChild(t);
-    CLS.forEach((l,j)=>{
-      const d = cell[c+l], x = labelW + colW*j;
-      const g = svgEl("g",{style:"cursor:default"});
-      const rect = svgEl("rect",{x:x+1,y:y+1,width:colW-2,height:rowH-2,rx:6,fill:colorFor(d.n)});
-      g.appendChild(rect);
-      const dark = d.n/max > 0.5 && d.n>0;
-      const v = svgEl("text",{x:x+colW/2,y:y+rowH/2+4,"text-anchor":"middle",class:"val",style:`fill:${dark?"#fff":"var(--ink)"}`}); v.textContent = d.n; g.appendChild(v);
-      bindTip(g, ()=>`<b>${esc(c)} · ${l}</b><br>부정 ${d.n}건 / 전체 ${d.all}건<br>평균 감정도 ${d.avg===null?"-":d.avg.toFixed(1)} / 5`);
-      svg.appendChild(g);
+  const W = host.clientWidth || 700, labelW = 140, colW = Math.floor((W-labelW-8)/3), rowH = 32, H = rowH*CATS.length + 30;
+  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`});
+
+  CLS.forEach((l,i)=>{
+    const t = svgEl("text",{x:labelW + i*colW + colW/2, y:18, "text-anchor":"middle", fill:"#4d4d49", "font-size":"12", "font-weight":"600"});
+    t.textContent = l; svg.appendChild(t);
+  });
+
+  CATS.forEach((c,r)=>{
+    const y = 26 + r*rowH;
+    const lt = svgEl("text",{x:labelW-10, y:y+rowH/2+4, "text-anchor":"end", fill:"#222", "font-size":"12"});
+    lt.textContent = c; svg.appendChild(lt);
+
+    CLS.forEach((l,ci)=>{
+      const x = labelW + ci*colW;
+      const data = cell[c+l];
+      const rect = svgEl("rect",{x:x+2, y:y+2, width:colW-4, height:rowH-4, rx:4, fill:colorFor(data.n), stroke:"#fff", "stroke-width":1, cursor:"pointer"});
+      bindTip(rect, ()=>`<strong>${esc(c)} × ${l}</strong><br>부정 항목: <b>${data.n}건</b> (전체 ${data.all}건 중)<br>평균 감정도: ${data.avg?data.avg.toFixed(1):"-"} / 5`);
+      svg.appendChild(rect);
+
+      if(data.n>0){
+        const val = svgEl("text",{x:x+colW/2, y:y+rowH/2+4, "text-anchor":"middle", fill: data.n/max>0.4?"#fff":"#1b3b64", "font-size":"12", "font-weight":"600", "pointer-events":"none"});
+        val.textContent = data.n; svg.appendChild(val);
+      }
     });
   });
   host.appendChild(svg);
 }
 
-/* ───────────── 차트: 가로 막대 ───────────── */
+/* ───────────── 차트: 카테고리별 막대 ───────────── */
 function drawBarCat(rs){
   const host = document.getElementById("barCat"); host.innerHTML = "";
-  const data = CATS.map(c=>({c, n: rs.filter(r=>r.cat===c&&isNeg(r)).length, all: rs.filter(r=>r.cat===c).length})).sort((a,b)=>b.n-a.n);
-  const max = Math.max(1,...data.map(d=>d.n));
-  const W = host.clientWidth || 600, labelW = 120, rowH = 32, H = rowH*data.length + 8, plotW = W - labelW - 50;
-  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":"카테고리별 부정 항목 수"});
-  // gridlines
-  const ticks = [0, Math.ceil(max/2), max];
-  ticks.forEach(t=>{ const x = labelW + (t/max)*plotW; svg.appendChild(svgEl("line",{x1:x,y1:0,x2:x,y2:H-8,stroke:"var(--grid)","stroke-width":1})); });
-  data.forEach((d,i)=>{
-    const y = i*rowH + 6, w = Math.max(0,(d.n/max)*plotW), bh = 22;
-    const t = svgEl("text",{x:labelW-10,y:y+bh/2+4,"text-anchor":"end"}); t.textContent = d.c; svg.appendChild(t);
-    const g = svgEl("g");
-    const path = svgEl("path",{d:`M${labelW},${y} h${Math.max(0,w-4)} a4,4 0 0 1 4,4 v${bh-8} a4,4 0 0 1 -4,4 h-${Math.max(0,w-4)} z`,fill:"var(--s1)"});
-    if(w<4) path.setAttribute("d",`M${labelW},${y} h${w} v${bh} h-${w} z`);
-    g.appendChild(path);
-    const v = svgEl("text",{x:labelW+w+8,y:y+bh/2+4,class:"val"}); v.textContent = d.n; g.appendChild(v);
-    bindTip(g, `<b>${esc(d.c)}</b><br>부정 ${d.n}건 / 전체 ${d.all}건`);
-    svg.appendChild(g);
+  const counts = CATS.map(c=>({cat:c, n:rs.filter(r=>r.cat===c&&isNeg(r)).length})).sort((a,b)=>b.n-a.n);
+  const max = Math.max(1, ...counts.map(x=>x.n));
+  const W = host.clientWidth || 400, labelW = 120, rowH = 26, H = rowH*counts.length + 10;
+  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`});
+
+  counts.forEach((d,i)=>{
+    const y = 8 + i*rowH;
+    const lt = svgEl("text",{x:labelW-8, y:y+14, "text-anchor":"end", fill:"#333", "font-size":"11"});
+    lt.textContent = d.cat; svg.appendChild(lt);
+
+    const barW = Math.max(2, Math.round(((W-labelW-45) * d.n) / max));
+    const r = svgEl("rect",{x:labelW, y:y+2, width:barW, height:rowH-6, rx:3, fill:"#256abf"});
+    bindTip(r, ()=>`<b>${esc(d.cat)}</b>: 부정 피드백 ${d.n}건`);
+    svg.appendChild(r);
+
+    const num = svgEl("text",{x:labelW+barW+6, y:y+14, fill:"#555", "font-size":"11"});
+    num.textContent = d.n; svg.appendChild(num);
   });
   host.appendChild(svg);
 }
 
-/* ───────────── 차트: 직급별 감정 분포 (스택) ───────────── */
+/* ───────────── 차트: 직급별 감정 분포 ───────────── */
 function drawStack(rs){
   const host = document.getElementById("stackCL"); host.innerHTML = "";
-  const W = host.clientWidth || 600, labelW = 50, rowH = 34, H = rowH*CLS.length, plotW = W - labelW - 60;
-  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":"직급별 감정 분포"});
+  const W = host.clientWidth || 400, labelW = 50, rowH = 28, H = rowH*CLS.length + 10;
+  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`});
+
   CLS.forEach((l,i)=>{
-    const all = rs.filter(r=>r.cl===l), n = all.length;
-    const neg = all.filter(isNeg).length, pos = all.filter(isPos).length, neu = n-neg-pos;
-    const y = i*rowH + 5, bh = 22;
-    const t = svgEl("text",{x:labelW-10,y:y+bh/2+4,"text-anchor":"end"}); t.textContent = l; svg.appendChild(t);
-    let x = labelW;
-    [["부정",neg,"var(--s8)"],["중립",neu,"var(--neutral)"],["긍정",pos,"var(--s1)"]].forEach(([k,v,col],j)=>{
-      if(!n||!v) return;
-      const w = (v/n)*plotW - 2;
-      const seg = svgEl("rect",{x:x,y:y,width:Math.max(0,w),height:bh,fill:col,rx: j===2?4:0});
-      bindTip(seg, `<b>${l} · ${k}</b><br>${v}건 (${Math.round(v/n*100)}%)`);
-      svg.appendChild(seg);
-      if(w>34){ const lab = svgEl("text",{x:x+w/2,y:y+bh/2+4,"text-anchor":"middle",style:`fill:${k==="중립"?"var(--ink)":"#fff"};font-size:11px;font-weight:600`}); lab.textContent = Math.round(v/n*100)+"%"; svg.appendChild(lab); }
-      x += w + 2;
+    const y = 8 + i*rowH;
+    const sub = rs.filter(r=>r.cl===l);
+    const tot = Math.max(1, sub.length);
+    const nNeg = sub.filter(isNeg).length, nPos = sub.filter(isPos).length;
+    const nMid = sub.length - nNeg - nPos;
+    const barW = W - labelW - 10;
+
+    const lt = svgEl("text",{x:labelW-8, y:y+16, "text-anchor":"end", fill:"#333", "font-size":"12", "font-weight":"600"});
+    lt.textContent = l; svg.appendChild(lt);
+
+    const w1 = Math.round((nNeg/tot)*barW), w2 = Math.round((nMid/tot)*barW), w3 = barW - w1 - w2;
+    let cx = labelW;
+
+    [[w1,"#d9534f",`부정 ${nNeg}건`], [w2,"#c8c8c4",`중립 ${nMid}건`], [w3,"#2b7a3e",`긍정 ${nPos}건`]].forEach(([w,c,desc])=>{
+      if(w>0){
+        const r = svgEl("rect",{x:cx, y:y+2, width:w, height:rowH-6, fill:c});
+        bindTip(r, ()=>`<b>${l}</b>: ${desc} (${tot>0?Math.round((parseInt(desc.split(" ")[1])/tot)*100):0}%)`);
+        svg.appendChild(r); cx += w;
+      }
     });
-    const tot = svgEl("text",{x:labelW+plotW+8,y:y+bh/2+4,class:"axis-label"}); tot.textContent = n+"건"; svg.appendChild(tot);
   });
   host.appendChild(svg);
 }
 
-/* ───────────── 차트: 주차별 추이 (컬럼) ───────────── */
+/* ───────────── 차트: 주차별 추이 ───────────── */
 function drawTrend(rs){
   const host = document.getElementById("trend"); host.innerHTML = "";
-  const wk = d=>{ const dt = new Date(d); const day = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-day); return dt.toISOString().slice(0,10); };
-  const m = {}; rs.forEach(r=>{ const k = wk(r.date); m[k] = m[k]||{n:0,neg:0}; m[k].n++; if(isNeg(r)) m[k].neg++; });
-  const keys = Object.keys(m).sort(); if(!keys.length){ host.innerHTML='<div class="empty">데이터 없음</div>'; return; }
-  const max = Math.max(1,...keys.map(k=>m[k].n));
-  const W = host.clientWidth || 600, H = 130, padL = 10, padB = 22, plotH = H - padB - 20, slot = (W-padL*2)/keys.length, bw = Math.min(24, slot*0.6);
-  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`,role:"img","aria-label":"주차별 입력 추이"});
-  svg.appendChild(svgEl("line",{x1:padL,y1:H-padB,x2:W-padL,y2:H-padB,stroke:"var(--axis)"}));
+  const byW = {};
+  rs.forEach(r=>{
+    const k = r.date.slice(0,7);
+    byW[k] = (byW[k]||0)+1;
+  });
+  const keys = Object.keys(byW).sort();
+  if(!keys.length) return;
+  const W = host.clientWidth || 400, H = 80;
+  const svg = svgEl("svg",{width:W,height:H,viewBox:`0 0 ${W} ${H}`});
+  const max = Math.max(1, ...Object.values(byW));
+  const colW = Math.floor((W-40)/keys.length);
+
   keys.forEach((k,i)=>{
-    const d = m[k], h = (d.n/max)*plotH, x = padL + slot*i + (slot-bw)/2, y = H-padB-h;
-    const g = svgEl("g");
-    const p = svgEl("path",{d:`M${x},${H-padB} v-${Math.max(0,h-4)} a4,4 0 0 1 4,-4 h${bw-8} a4,4 0 0 1 4,4 v${Math.max(0,h-4)} z`,fill:"var(--s1)"});
-    g.appendChild(p);
-    const v = svgEl("text",{x:x+bw/2,y:y-4,"text-anchor":"middle",class:"val"}); v.textContent = d.n; g.appendChild(v);
-    bindTip(g, `<b>${k} 주</b><br>${d.n}건 (부정 ${d.neg})`);
-    svg.appendChild(g);
-    const t = svgEl("text",{x:x+bw/2,y:H-6,"text-anchor":"middle",class:"axis-label"}); t.textContent = k.slice(5); svg.appendChild(t);
+    const x = 30 + i*colW;
+    const barH = Math.round(((H-30)*byW[k])/max);
+    const y = H - 20 - barH;
+    const r = svgEl("rect",{x:x+4, y, width:colW-8, height:barH, rx:2, fill:"#6da7ec"});
+    bindTip(r, ()=>`<b>${k}</b>: ${byW[k]}건 등록`);
+    svg.appendChild(r);
+
+    const lt = svgEl("text",{x:x+colW/2, y:H-6, "text-anchor":"middle", fill:"#666", "font-size":"10"});
+    lt.textContent = k.slice(5); svg.appendChild(lt);
   });
   host.appendChild(svg);
 }
 
 /* ───────────── KPI & 테이블 ───────────── */
 function renderKPIs(rs){
-  const n = rs.length, neg = rs.filter(isNeg).length, pos = rs.filter(isPos).length;
-  document.getElementById("kTotal").textContent = n;
-  document.getElementById("kByCL").textContent = CLS.map(l=>l+" "+rs.filter(r=>r.cl===l).length).join(" · ");
-  document.getElementById("kNeg").textContent = n? Math.round(neg/n*100)+"%" : "0%";
-  document.getElementById("kPos").textContent = `긍정 ${pos}건 · 중립 ${n-neg-pos}건`;
-  const top = CATS.map(c=>({c,n:rs.filter(r=>r.cat===c&&isNeg(r)).length})).sort((a,b)=>b.n-a.n)[0];
-  document.getElementById("kTop").textContent = top&&top.n? top.c : "-";
-  document.getElementById("kTopN").textContent = top&&top.n? `부정 ${top.n}건` : "";
-  document.getElementById("metaCount").textContent = records.length;
+  const tot = rs.length;
+  document.getElementById("kTotal").textContent = tot;
+  document.getElementById("kByCL").textContent = `CL2: ${rs.filter(r=>r.cl==='CL2').length} · CL3: ${rs.filter(r=>r.cl==='CL3').length} · CL4: ${rs.filter(r=>r.cl==='CL4').length}`;
+  const neg = rs.filter(isNeg).length, pos = rs.filter(isPos).length;
+  document.getElementById("kNeg").textContent = tot? Math.round((neg/tot)*100)+"%":"0%";
+  document.getElementById("kPos").textContent = `긍정 ${tot?Math.round((pos/tot)*100):0}% (${pos}건) · 부정 ${neg}건`;
+
+  const counts = CATS.map(c=>({c, n:rs.filter(r=>r.cat===c&&isNeg(r)).length})).sort((a,b)=>b.n-a.n);
+  document.getElementById("kTop").textContent = counts[0]? counts[0].c : "-";
+  document.getElementById("kTopN").textContent = counts[0]? `부정 ${counts[0].n}건` : "";
 }
-function renderRoot(){ document.getElementById("rootCauses").innerHTML = ROOT_CAUSES.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join(""); }
+
+function renderRoot(){
+  const list = curVersion === "v2" ? ROOT_CAUSES_V2 : ROOT_CAUSES_V1;
+  const tbody = document.getElementById("rootCauses");
+  tbody.innerHTML = list.map(x=>`<tr><td style="font-weight:600">${esc(x.symptom)}</td><td>${esc(x.cause)}</td><td style="color:var(--ink2)">${esc(x.sci)}</td></tr>`).join("");
+}
+
 function renderList(){
-  const tb = document.getElementById("list");
-  const rs = records.slice().sort((a,b)=>b.date.localeCompare(a.date));
-  document.getElementById("listCount").textContent = `(${rs.length}건)`;
-  tb.innerHTML = rs.map(r=>`<tr><td style="white-space:nowrap">${esc(r.date)}</td><td>${esc(r.cl)}</td><td>${esc(r.cat)}</td><td class="mood-${r.mood}" style="font-weight:600">${r.mood}</td><td>${esc(r.text)}</td><td><button class="btn sm danger" data-del="${esc(r.id)}">삭제</button></td></tr>`).join("");
-  tb.querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>{ records = records.filter(r=>r.id!==b.dataset.del); save(); renderAll(); }));
+  const el = document.getElementById("recList");
+  document.getElementById("recCount").textContent = records.length;
+  el.innerHTML = records.slice().reverse().map(r=>`
+    <div style="border-bottom:1px solid var(--border);padding:8px 0;font-size:12px">
+      <div style="display:flex;justify-content:space-between;color:var(--muted);margin-bottom:2px">
+        <span><b style="color:var(--ink)">${esc(r.cl)}</b> · ${esc(r.cat)}</span>
+        <span>${esc(r.date)}</span>
+      </div>
+      <div>${esc(r.text)}</div>
+    </div>
+  `).join("");
 }
-function renderMap(rs){
-  document.getElementById("mapTable").innerHTML = CATS.map(c=>{
-    const n = rs.filter(r=>r.cat===c&&isNeg(r)).length;
-    const acts = ACTIONS.filter(a=>a.cats.includes(c)).map(a=>`<span class="pill term-${a.term}">${a.id} ${esc(a.title.split(" (")[0])}</span>`).join("");
-    return `<tr><td>${esc(c)}</td><td class="num">${n}</td><td>${acts || '<span style="color:var(--muted);font-size:12px">진단 및 대책 수립 예정</span>'}</td></tr>`;
-  }).join("");
-}
+
 function renderStatic(){
-  document.getElementById("stopTable").innerHTML = STOPLIST.map(s=>`<tr><td class="num">${s[0]}</td><td>${esc(s[1])}</td><td>${esc(s[2])}</td><td>${esc(s[3])}</td></tr>`).join("");
-  document.getElementById("roadmap").innerHTML = ROADMAP.map(r=>`<div class="step"><div class="n">${r[0]}</div><b>${esc(r[1])}</b><div style="color:var(--muted);font-size:12px">${esc(r[2])}</div><div style="font-size:13px;margin-top:4px">산출물: ${esc(r[3])}</div></div>`).join("");
-  document.getElementById("bottleTable").innerHTML = BOTTLENECKS.map(b=>`<tr><td><b>${esc(b[0])}</b></td><td>${esc(b[1])}</td><td>${esc(b[2])}</td><td>${esc(b[3])}</td></tr>`).join("");
-  const tl = document.getElementById("timeline");
-  tl.innerHTML = ["단기","중기","장기"].map(term=>{
-    const span = {단기:"0~1개월 · 멈추기와 인정하기",중기:"1~3개월 · 구조 바꾸기",장기:"3~12개월 · 정체성과 커리어"}[term];
-    const items = ACTIONS.filter(a=>a.term===term).map(a=>`<div class="act" data-id="${a.id}"><b>${a.id}. ${esc(a.title)}</b><small>담당 ${esc(a.owner)} · 지표 ${esc(a.kpi)}</small><div class="cats" style="display:none;margin-top:4px">${a.cats.map(c=>`<span class="pill">${esc(c)}</span>`).join("")}</div></div>`).join("");
-    return `<div class="card col ${term}"><h3>${term} <span class="pill">${span}</span></h3>${items}</div>`;
-  }).join("");
-  tl.querySelectorAll(".act").forEach(el=>el.addEventListener("click",()=>{ const c = el.querySelector(".cats"); c.style.display = c.style.display==="none"?"block":"none"; }));
-  // cases
-  const sel = document.getElementById("fCase"); CATS.forEach(c=>{ const o = document.createElement("option"); o.textContent = c; sel.appendChild(o); });
-  renderCases();
-  document.getElementById("stories").innerHTML = STORIES.length ? STORIES.map(s=>`<div class="card story"><div class="case"><div class="co">${esc(s.company)}</div><h4>${esc(s.title)}</h4>
-    <div class="stage"><b>문제</b><span>${esc(s.problem)}</span></div><div class="stage"><b>조치</b><span>${esc(s.action)}</span></div><div class="stage"><b>결과</b><span>${esc(s.result)}</span></div><div class="stage"><b>시사점</b><span>${esc(s.lesson)}</span></div>
-    ${(s.sources||[]).map(u=>`<a href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.title||u.url)}</a>`).join("<br>")}</div></div>`).join("") : '<div class="empty">사례 데이터가 아직 없습니다.</div>';
+  const isV2 = curVersion === "v2";
+  const roadmap = isV2 ? ROADMAP_V2 : ROADMAP_V1;
+  const stopList = isV2 ? STOPLIST_V2 : STOPLIST_V1;
+  const bottlenecks = isV2 ? BOTTLENECKS_V2 : BOTTLENECKS_V1;
+
+  document.getElementById("roadmapGrid").innerHTML = roadmap.map(r=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px">
+      <div style="font-size:11px;font-weight:700;color:var(--s1)">${r.step} (${r.period})</div>
+      <div style="font-size:13px;font-weight:700;margin:4px 0 6px">${esc(r.name)}</div>
+      <div style="font-size:12px;color:var(--ink2);line-height:1.4">${esc(r.tasks)}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("stopListBody").innerHTML = stopList.map(s=>`
+    <tr>
+      <td style="font-weight:700;color:var(--s1);text-align:center">${s.prio}</td>
+      <td><span class="tag" style="background:#fce8e6;color:#c5221f">${esc(s.type)}</span></td>
+      <td style="font-weight:600">${esc(s.item)}</td>
+      <td style="color:var(--ink2)">${esc(s.action)}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(s.reason)}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("bottlenecksBody").innerHTML = bottlenecks.map(b=>`
+    <tr>
+      <td style="font-weight:600">${esc(b.area)}</td>
+      <td>${esc(b.symptom)}</td>
+      <td style="color:#d9534f;font-weight:600">${esc(b.cost)}</td>
+      <td style="color:var(--ink2)">${esc(b.fix)}</td>
+    </tr>
+  `).join("");
+
+  renderActions();
 }
+
+function renderActions(){
+  const isV2 = curVersion === "v2";
+  const actions = isV2 ? ACTIONS_V2 : [
+    {"term":"단기","title":"Stop-List 공식 선언","owner":"그룹장","kpi":"정기 회의 30% 감축","cats":["회의 비효율","리더십 소통"]},
+    {"term":"단기","title":"레거시 칩셋 폴더 정리","owner":"TL, 시니어","kpi":"인벤토리 완료","cats":["GitHub/VCS"]},
+    {"term":"단기","title":"회의 3P 선언","owner":"그룹장, TL","kpi":"모든 회의 3P 기재","cats":["회의 비효율"]},
+    {"term":"단기","title":"Recognition First","owner":"그룹장, TL","kpi":"해결 건당 인정 1회","cats":["리더십 소통"]},
+    {"term":"중기","title":"GitHub 페어링","owner":"TL","kpi":"PR 리드타임 반나절","cats":["GitHub/VCS"]},
+    {"term":"중기","title":"Tech Time Slot (주 2시간)","owner":"그룹장","kpi":"참여율 90%","cats":["AI/AX 적응"]},
+    {"term":"장기","title":"선행·상용 로테이션","owner":"그룹장","kpi":"로테이션 인원 수","cats":["정체성·커리어"]}
+  ];
+
+  const term = document.getElementById("fTerm").value;
+  let filtered = actions;
+  if(term) filtered = filtered.filter(a=>a.term === term);
+
+  document.getElementById("actionsBody").innerHTML = filtered.map(a=>`
+    <tr>
+      <td><span class="tag" style="background:#e8f0fe;color:#1e5aa0">${esc(a.term)}</span></td>
+      <td style="font-weight:600">${esc(a.title)}</td>
+      <td>${esc(a.owner)}</td>
+      <td style="color:var(--ink2)">${esc(a.kpi)}</td>
+      <td>${a.cats.map(c=>`<span class="tag">${esc(c)}</span>`).join(" ")}</td>
+    </tr>
+  `).join("");
+}
+
 function renderCases(){
-  const f = document.getElementById("fCase").value;
-  const list = CASES.filter(c=>!f || c.cats.includes(f));
-  document.getElementById("cases").innerHTML = list.length ? list.map(c=>`<div class="card case"><div class="co">${esc(c.company)}</div><h4>${esc(c.title)}</h4>
-    <div>${c.cats.map(x=>`<span class="pill">${esc(x)}</span>`).join("")}</div>
-    <p><span class="k">문제</span> ${esc(c.problem)}</p>
-    <div><span class="k" style="font-size:13px">조치</span><ul>${c.actions.map(a=>`<li>${esc(a)}</li>`).join("")}</ul></div>
-    <p><span class="k">결과</span> ${esc(c.result)}</p>
-    <p><span class="k">우리 그룹 시사점</span> ${esc(c.lesson)}</p>
-    <div>${(c.sources||[]).map(u=>`<a href="${esc(u.url)}" target="_blank" rel="noopener">${esc(u.title||u.url)}</a>`).join("<br>")}</div></div>`).join("") : '<div class="empty">해당 카테고리의 사례가 없습니다.</div>';
+  const cat = document.getElementById("fCaseCat").value;
+  let list = CASES;
+  if(cat) list = list.filter(c=>c.cats.includes(cat) || c.problem.includes(cat));
+
+  document.getElementById("casesGrid").innerHTML = list.map(c=>`
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <h3 style="margin:0">${esc(c.company)} – ${esc(c.title)}</h3>
+      </div>
+      <div style="margin:6px 0">${c.cats.map(t=>`<span class="tag">${esc(t)}</span>`).join(" ")}</div>
+      <p style="font-size:12px;color:var(--ink2);margin:8px 0"><strong>문제:</strong> ${esc(c.problem)}</p>
+      <p style="font-size:12px;color:var(--ink2);margin:8px 0"><strong>조치:</strong> ${esc(c.action)}</p>
+      <p style="font-size:12px;color:var(--ink2);margin:8px 0"><strong>결과:</strong> ${esc(c.result)}</p>
+      <div style="background:var(--bg2);padding:8px;border-radius:4px;font-size:12px;margin-top:8px">
+        <strong>우리 그룹 시사점:</strong> ${esc(c.takeaway)}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderStories(){
+  document.getElementById("storiesContainer").innerHTML = STORIES.map(s=>`
+    <div class="card" style="margin-bottom:16px">
+      <h3>${esc(s.company)} – ${esc(s.title)}</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px">
+        <div style="background:var(--bg2);padding:10px;border-radius:6px;font-size:12px">
+          <strong style="color:#d9534f">문제 상황</strong>
+          <p style="margin:4px 0 0;color:var(--ink2)">${esc(s.problem)}</p>
+        </div>
+        <div style="background:var(--bg2);padding:10px;border-radius:6px;font-size:12px">
+          <strong style="color:#1e5aa0">실행 조치</strong>
+          <p style="margin:4px 0 0;color:var(--ink2)">${esc(s.action)}</p>
+        </div>
+      </div>
+      <div style="background:#f0f7f1;border:1px solid #d2e8d6;padding:10px;border-radius:6px;font-size:12px;margin-top:10px">
+        <strong style="color:#2b7a3e">시사점 및 교훈</strong>
+        <p style="margin:4px 0 0;color:#1d4624">${esc(s.lesson)}</p>
+      </div>
+    </div>
+  `).join("");
 }
 
 function renderAll(){
   const rs = filtered();
-  renderKPIs(rs); drawHeatmap(rs); drawBarCat(rs); drawStack(rs); drawTrend(rs); renderMap(rs); renderList();
+  renderKPIs(rs);
+  drawHeatmap(rs);
+  drawBarCat(rs);
+  drawStack(rs);
+  drawTrend(rs);
+  renderRoot();
+  renderList();
+  renderStatic();
+  renderCases();
+  renderStories();
 }
 
-/* ───────────── 입력 폼 ───────────── */
-const PII = /[가-힣]{2,4}\s*(님|책임님|수석|선임|프로|파트장|팀장)|[가-힣]{2,3}\s*책임(?!\s*(감|소재|자))|(^|\D)\d{8}(\D|$)|[a-z0-9._]+@[a-z0-9.]+/i;
-const form = document.getElementById("form"), pii = document.getElementById("pii"), btnForce = document.getElementById("btnForce");
-document.getElementById("iDate").value = new Date().toISOString().slice(0,10);
-CATS.forEach(c=>{ const o = document.createElement("option"); o.textContent = c; document.getElementById("iCat").appendChild(o); });
-document.getElementById("iMood").addEventListener("input", e=>document.getElementById("iMoodV").textContent = e.target.value);
-function addRecord(){
-  records.push({id:"u"+Date.now(), date:document.getElementById("iDate").value, cl:document.getElementById("iCL").value, cat:document.getElementById("iCat").value, mood:Number(document.getElementById("iMood").value), text:document.getElementById("iText").value.trim()});
-  save(); form.reset(); document.getElementById("iDate").value = new Date().toISOString().slice(0,10); document.getElementById("iMoodV").textContent = 3; pii.classList.remove("show"); btnForce.style.display="none"; renderAll();
+/* ───────────── 입력 & 내보내기 ───────────── */
+function addRecord(e){
+  e.preventDefault();
+  const text = document.getElementById("iText").value.trim();
+  const date = document.getElementById("iDate").value;
+  const cl = document.getElementById("iCL").value;
+  const cat = document.getElementById("iCat").value;
+  const mood = Number(document.getElementById("iMood").value);
+
+  // Simple PII check
+  if(/[0-9]{7,8}/.test(text)){
+    document.getElementById("piiWarn").style.display = "block"; return;
+  }
+
+  records.push({ id:"u"+Date.now(), date, cl, cat, mood, text });
+  save();
+  resetForm();
+  renderAll();
+  alert("1on1 피드백이 등록되었으며 차트에 즉시 반영되었습니다.");
 }
-form.addEventListener("submit", e=>{ e.preventDefault(); const text = document.getElementById("iText").value; if(PII.test(text)){ pii.classList.add("show"); btnForce.style.display="inline-block"; return; } addRecord(); });
-btnForce.addEventListener("click", addRecord);
-document.getElementById("btnExport").addEventListener("click", ()=>{ const blob = new Blob([JSON.stringify(records,null,2)],{type:"application/json"}); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "1on1_records_"+new Date().toISOString().slice(0,10)+".json"; a.click(); });
-document.getElementById("fileImport").addEventListener("change", e=>{ const f = e.target.files[0]; if(!f) return; const rd = new FileReader(); rd.onload = ()=>{ try{ const arr = JSON.parse(rd.result); if(!Array.isArray(arr)) throw 0; const ok = arr.filter(r=>r.date&&CLS.includes(r.cl)&&CATS.includes(r.cat)&&r.mood>=1&&r.mood<=5&&r.text); records = ok.map((r,i)=>({id:r.id||("i"+Date.now()+i),date:r.date,cl:r.cl,cat:r.cat,mood:Number(r.mood),text:String(r.text)})); save(); renderAll(); }catch(err){ alert("JSON 형식이 올바르지 않습니다."); } }; rd.readAsText(f); e.target.value=""; });
-document.getElementById("btnReset").addEventListener("click", ()=>{ records = SEED.map(x=>({...x})); save(); renderAll(); });
+
+function resetForm(){
+  document.getElementById("iText").value = "";
+  document.getElementById("piiWarn").style.display = "none";
+}
+
+function exportJSON(){
+  const blob = new Blob([JSON.stringify(records,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `phy_1on1_records_${curVersion}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+}
+
+function importJSON(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    try{
+      const data = JSON.parse(ev.target.result);
+      if(Array.isArray(data)){
+        records = data; save(); renderAll(); alert("데이터를 성공적으로 가져왔습니다.");
+      }
+    }catch(err){ alert("유효하지 않은 JSON 파일입니다."); }
+  };
+  reader.readAsText(file);
+}
+
+function resetData(){
+  if(confirm("현재 버전의 데이터를 초기 SEED 상태로 복원하시겠습니까?")){
+    localStorage.removeItem(getLSKey());
+    records = load();
+    renderAll();
+  }
+}
+
+/* ───────────── 탭 전환 & 초기화 ───────────── */
+document.querySelectorAll("nav.tabs button").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("section.tab").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    const t = document.getElementById("tab-" + b.dataset.tab);
+    if(t) t.classList.add("active");
+  });
+});
+
 document.getElementById("fCL").addEventListener("change", renderAll);
 document.getElementById("fRange").addEventListener("change", renderAll);
-document.getElementById("fCase").addEventListener("change", renderCases);
+window.addEventListener("resize", renderAll);
 
-/* ───────────── 탭 ───────────── */
-document.getElementById("tabs").addEventListener("click", e=>{ const b = e.target.closest("button"); if(!b) return; document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x===b)); document.querySelectorAll("section.tab").forEach(s=>s.classList.toggle("active", s.id==="tab-"+b.dataset.tab)); renderAll(); });
-window.addEventListener("resize", ()=>{ clearTimeout(window.__rt); window.__rt = setTimeout(renderAll,150); });
-
-renderStatic(); renderRoot(); renderAll();
+// Init
+document.getElementById("iDate").value = new Date().toISOString().slice(0,10);
+updateCatSelects();
+renderAll();
 </script>
 </body>
 </html>

@@ -3,42 +3,41 @@
 ===========================================================
 
 ■ 제목
-PHY SW Group 조직문화 개선 AX 에이전트 팀 — 실시간 1on1 입력형 인터랙티브 대시보드
+PHY SW Group 조직문화 개선 AX 에이전트 팀 — 실시간 1on1 입력형 인터랙티브 대시보드 (v2.0)
 
 ■ 주제
-그룹장이 진행한 1on1 피드백을 멀티에이전트가 진단·분석하고, 조직문화 개선안을 한눈에 보여주는 단일 HTML 대시보드.
-실시간으로 1on1을 입력받아 히트맵·KPI·차트가 즉시 갱신되며, 빅테크 유사 사례(출처 포함), 단·중·장기 대책, 우수 극복 사례를 함께 제공합니다.
+그룹장이 진행한 1on1 피드백(전수 종합 120건)을 멀티에이전트가 진단·분석하고, 12대 확장 카테고리 기반 조직문화 개선안을 한눈에 보여주는 단일 HTML 대시보드.
+상단 [버전 선택기]를 통해 v1.0(초기 66건)과 v2.0(종합 120건)을 자유롭게 전환·비교할 수 있으며, 실시간으로 1on1을 입력받아 히트맵·KPI·차트가 즉시 갱신됩니다. 빅테크 유사 사례(출처 포함), 단·중·장기 대책, 우수 극복 사례를 함께 제공합니다.
 
 ■ 에이전트 팀 구성 (Sub-Agent 6개, .claude/agents/)
-1. culture-diagnostician — 직급(CL2/3/4)별 감정 히트맵, 근본 원인 매트릭스, 심리적 안전감 점수 진단
-2. workflow-optimizer — GitHub/회의/과제 병목 분석, Stop-List 8건, 회의 3P 기준 설계
-3. leadership-action-designer — 단·중·장기 대책 18건, CA 간담회 스크립트, Recognition First 가이드, 4단계 로드맵
-4. bigtech-benchmark-researcher — 빅테크 10개 사례 + 우수 극복 사례 3선 (공개 출처 56건, 사내 데이터 외부 전송 없음)
-5. dashboard-builder — 외부 라이브러리 없는 단일 HTML 대시보드(SVG 차트, localStorage 실시간 입력, JSON 내보내기/가져오기)
-6. hackathon-judge — Scorebot 기준 셀프 채점, 민감정보 검사, 대시보드 요구사항 심사
+1. culture-diagnostician — 직급(CL2/3/4)별 12대 고충 카테고리 감정 히트맵, 근본 원인 매트릭스, 심리적 안전감 점수(2.1/5) 진단
+2. workflow-optimizer — GitHub/회의/과제 병목 분석, Stop-List 10선, 회의 3P 기준 및 온보딩/사후관리 가이드 설계
+3. leadership-action-designer — 단·중·장기 대책 15건, CA 간담회 오프닝 스크립트, Recognition First 가이드, 4단계 로드맵
+4. bigtech-benchmark-researcher — 빅테크 10개 사례 + 우수 극복 사례 3선 (12대 카테고리 연계 매핑, 공개 출처 56건, 사내 데이터 외부 전송 없음)
+5. dashboard-builder — 외부 라이브러리 없는 단일 HTML 대시보드(v1/v2 듀얼 버전 스위처, SVG 히트맵/차트, localStorage 실시간 입력, JSON 내보내기/가져오기)
+6. hackathon-judge — Scorebot 기준 셀프 채점(3/3 PASS, 5/5 만점), 실명 21명 비식별화 0건 노출 전수 검사, 대시보드 요구사항 심사
 
 Head(CLAUDE.md)에 요청 유형별 호출 조건(라우팅 표), 각 에이전트 역할, 페르소나, 안전장치(민감정보·외부 전송 금지·실명 비식별화·원본 수정 금지)를 정의했습니다.
 
 ■ 대시보드 기능 (dashboard/index.html, 더블클릭으로 실행)
-- 현황 진단: KPI 카드, 직급 × 고충 카테고리(8개) 히트맵, 카테고리별 막대, 직급별 감정 분포, 주차별 추이, 근본 원인 매트릭스
-- 1on1 실시간 입력: 날짜·직급·카테고리·감정도·요약 입력 → 즉시 모든 차트 재계산. 실명·사번 감지 경고, JSON 내보내기/가져오기, 초기화
-- 빅테크 유사 사례: Etsy, Google(Aristotle/Oxygen/2011 정리), Shopify, AMD, Microsoft(GVFS/SDET/Nadella), Amazon·Meta AI 도입 — 고충 매핑과 출처 링크
-- 단·중·장기 대책: 타임라인, 고충→대책 매핑 표, Stop-List, 4단계 로드맵, 병목→조치 표
+- 버전 선택기: 상단 드롭다운으로 v2.0(종합 120건·12대 카테고리)과 v1.0(초기 66건·8대 카테고리)을 즉시 상호 전환 및 시계열 비교
+- 현황 진단: KPI 카드, 직급 × 고충 카테고리(12개) 히트맵, 카테고리별 막대, 직급별 감정 분포, 주차별 추이, 근본 원인 매트릭스
+- 1on1 실시간 입력: 날짜·직급·12대 카테고리·감정도·요약 입력 → 즉시 모든 차트 재계산. 실명·사번 감지 경고, JSON 내보내기/가져오기, 초기화
+- 빅테크 유사 사례: Etsy, Google(Aristotle/Oxygen/2011 정리), Shopify, AMD, Microsoft(GVFS/SDET/Nadella), Amazon·Meta AI 도입 — 12대 카테고리 매핑과 출처 링크
+- 단·중·장기 대책: 4단계 로드맵, 고충→대책 매핑 표, Stop-List 10선, 병목→조치 표
 - 우수 극복 사례: Microsoft 문화 리셋, AMD 턴어라운드, Windows Git 전환 (문제→조치→결과→시사점)
 
-■ 데이터 취급
-1on1 원문과 원본 파일은 포함하지 않았으며, 대시보드에는 익명화·요약된 문장만 실었습니다. 입력 데이터는 브라우저 localStorage에만 저장됩니다.
+■ 데이터 취급 및 버전 보존
+- 1on1 원문과 원본 파일(docs/1on1.xlsx)은 제출용 zip에 포함하지 않으며, 대시보드에는 100% 비식별화·요약된 문장만 실었습니다.
+- 과거 버전(v1.0) 원본은 archive/v1.0_20261018/에 동결 보존되어 향후 언제든 독립 열람이 가능합니다.
 
-■ Scorebot 채점 결과 (아래에 붙여넣음)
-📦 Multi-Agent 시스템: 261015_PHY_SW_그룹장.zip
-채점 시간: 2026-10-15 16:51
-
+■ Scorebot 채점 결과 (사전 검증 완료)
 🧩 서브에이전트 (6개): bigtech-benchmark-researcher, culture-diagnostician, dashboard-builder, hackathon-judge, leadership-action-designer, workflow-optimizer
 
 [통과 기준] PASS (3/3 충족)
-  ✅ 기준 1. Sub-Agent 3개 이상 구성 — PASS
-  ✅ 기준 2. CLAUDE.md에 호출 조건·역할 설명 — PASS
-  ✅ 기준 3. .html 파일 포함 — PASS
+  ✅ 기준 1. Sub-Agent 3개 이상 구성 — PASS (6개)
+  ✅ 기준 2. CLAUDE.md에 호출 조건·역할 설명 — PASS (6/6 전원 포함, 트리거/역할 완비)
+  ✅ 기준 3. .html 파일 포함 — PASS (dashboard/index.html)
 
 [도전 목표] 5/5 달성
   🏆 에이전트 자기소개
@@ -52,8 +51,8 @@ Head(CLAUDE.md)에 요청 유형별 호출 조건(라우팅 표), 각 에이전�
 ===========================================================
 1. https://contest-platform-production.up.railway.app/samsungds-ai 접속
 2. 회원가입: Knox 이메일 주소, 비밀번호 123456 → 로그인
-3. "제출하기" 클릭 → zip 파일: C:\Users\User\Desktop\261015_PHY_SW_그룹장.zip
+3. "제출하기" 클릭 → zip 파일 선택
 4. 산출물 설명: 이 파일 상단의 [콘테스트 플랫폼 제출용 산출물 설명] 전체를 붙여넣기 (Scorebot 결과 포함)
-5. 폴더/zip 이름의 "PHY_SW_그룹장" 부분을 본인 이름으로 바꾸려면: 폴더명 변경 후 아래 명령으로 다시 압축
+5. 압축 생성 명령어 (원문 엑셀 docs/1on1.xlsx 및 archive/ 제외하고 압축):
    cd %USERPROFILE%\Desktop
-   tar.exe -a -cf 261015_이름.zip 261015_이름
+   tar.exe -a -cf 261029_PHY_SW_그룹장.zip --exclude="docs/1on1.xlsx" --exclude="archive" 261029_PHY_SW_그룹장
