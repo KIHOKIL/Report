@@ -760,80 +760,106 @@ const BOTTLENECKS = [
 ];
 
 const CASES = [
-  {company:"Etsy",title:"Blameless Postmortem과 '세 팔 스웨터' 상",cats:["리더십 소통","이슈처리 구조","인정 & 심리적 안전감"],
-   problem:"하루 수십 번 배포로 장애가 잦았고, '누가 잘못했나' 방식은 엔지니어가 문제를 숨기게 만들어 같은 실패가 반복됐다.",
-   actions:["2012년 'Blameless PostMortems and a Just Culture' 공개: 개인 비난 대신 당시 판단을 재구성. 비난 없음 ≠ 책임 없음","포스트모템을 숙제가 아닌 학습 투자로 재정의. 실수한 사람이 가장 잘 아는 전문가로서 발표자가 됨","Debriefing Facilitation Guide로 진행자 역할·질문 방식·액션아이템 절차화","매년 사이트를 가장 화려하게 망가뜨린 사람에게 'Three-Armed Sweater Award' 수여"],
-   result:"업계 표준 문헌(Google SRE 북 등)이 인용하는 원형이 됐고, 하루 수십 회 배포 체계를 유지하는 기반으로 평가된다.",
-   lesson:"포스트모템을 제출 서류가 아니라 그룹이 함께 보는 학습 세션으로 바꾸고, 발표자에게 인정이 돌아가게 설계한다. 분기마다 '가장 많이 배운 이슈'를 선정해 공개적으로 인정하면 '이슈 종착지'를 '가장 많이 배우는 곳'으로 바꿀 수 있다.",
-   sources:[{title:"Etsy Code as Craft, Blameless PostMortems and a Just Culture (2012)",url:"https://www.etsy.com/codeascraft/blameless-postmortems"},{title:"Etsy, Debriefing Facilitation Guide (2016)",url:"https://www.etsy.com/codeascraft/debriefing-facilitation-guide"},{title:"InfoQ, Blameless Post Mortems (2014)",url:"https://www.infoq.com/news/2014/07/blameless-post-mortems"}]},
-  {company:"Google",title:"Project Aristotle(심리적 안전감)과 SRE 포스트모템 문화",cats:["리더십 소통","이슈처리 구조","인정 & 심리적 안전감"],
-   problem:"'최고 인재를 모으면 된다'는 가정으로 180개 팀을 분석했으나 역량·경력·팀 규모는 성과와 무관했다. SRE는 같은 장애의 반복을 막을 체계가 필요했다.",
-   actions:["팀 효과성 1순위 요인을 심리적 안전감으로 확정, 나머지는 상호 신뢰·구조와 명확성·일의 의미·영향력","re:Work에 팀 자가진단 도구와 매니저 실천 가이드 공개","SRE 북 15장: 포스트모템 작성 기준을 사전 정의하고 비난 없는 작성·리뷰·공유·액션 추적을 절차화","잘 쓴 포스트모템을 공개적으로 칭찬하고 보상에 연계"],
-   result:"심리적 안전감이 높은 팀은 이직 가능성이 낮고 경영진에게 '효과적'이라는 평가를 받는 비율이 약 2배(Google 자체 분석).",
-   lesson:"포스트모템이 숙제로 느껴지는 원인은 기준 없이 매번 요구되고 결과물이 어디에도 안 쓰이기 때문이다. 대상 기준(고객사 보고 이슈, 재발 이슈)을 먼저 정하고, 그룹 공용 저장소에서 재사용되게 하며, 잘 쓴 문서를 회의에서 짧게 인정한다.",
-   sources:[{title:"Google re:Work, Understand team effectiveness",url:"https://rework.withgoogle.com/en/guides/understanding-team-effectiveness"},{title:"Google SRE Book Ch.15 Postmortem Culture (2016)",url:"https://sre.google/sre-book/postmortem-culture/"},{title:"Google SRE Workbook Ch.10 (2018)",url:"https://sre.google/workbook/postmortem-culture/"}]},
-  {company:"Shopify",title:"반복회의 전면 삭제 'Chaos Monkey 2023'",cats:["회의 비효율","소통·배경설명"],
-   problem:"원격 근무 전환 후 반복 회의가 캘린더에 누적돼 집중 시간이 사라졌다. 개별 회의를 하나씩 없애는 방식은 정치적 비용 때문에 작동하지 않았다.",
-   actions:["2023년 1월, 3인 이상 반복 회의를 캘린더에서 일괄 삭제(약 10,000건, 76,000시간). 2주 냉각기 동안 재등록 금지","꼭 필요한 회의만 목적을 적어 다시 만들게 함. No Meeting Wednesday 복원","50인 이상 대형 회의는 목요일 6시간 창구로 제한. 내부 Slack 대형 채널 정리","보완: Asana 'Meeting Doomsday'(1인당 월 11시간 절감), Amazon 6페이지 메모 침묵 독해"],
-   result:"2023년 1~2월 1인당 회의 시간 전년 대비 33% 감소, 연말까지 25% 더 많은 프로젝트 완료 전망(자체 보고, 독립 검증 없음).",
-   lesson:"'3인 이상 반복 회의 전수 목록 → 2주 전면 중단 → 목적과 산출물을 적어야만 재개'가 한 분기 안에 가능하다. 상태 공유 회의는 주간 서면 업데이트로 대체하고, 회의는 결정이 필요한 안건만 남긴다. 그룹장이 직접 선언해야 정치적 비용이 사라진다.",
-   sources:[{title:"CNN Business, Shopify is cancelling all meetings with more than two people (2023)",url:"https://amp.cnn.com/cnn/2023/01/03/tech/shopify-meetings"},{title:"SHRM, 6 Lessons Execs Can Learn from Shopify's Meetings Diet (2023)",url:"https://shrm.org/executive-network/insights/6-lessons-execs-can-learn-shopifys-meetings-diet"}]},
-  {company:"Spotify",title:"스쿼드 간 R&R 갈등과 Chapter/Guild 거버넌스",cats:["협업·R&R","정체성·커리어"],
-   problem:"선행 파트(인프라/코어)와 피처 파트 간 역할 중복과 우선순위 갈등이 심화되어 사일로 현상 발생.",
-   actions:["Chapter(직무 전문성 리더)와 Tribe/Squad(목표 중심 팀) 매트릭스 도입","정기적인 Cross-Squad 로테이션 및 데모 세션으로 선행 기술을 도메인 파트에 직접 전수","엔지니어 간 주간 Guild 모임으로 공통 툴과 지식을 공유"],
-   result:"파트 간 위화감 해소 및 상용 파트의 선행 아키텍처 이해도 향상.",
-   lesson:"선행 파트와 도메인 파트의 단절을 막으려면 정기적인 선행-도메인 업무 공유회와 순환 근무(Bring-up 파견)가 필수적이다.",
-   sources:[{title:"Scaling Agile @ Spotify (Kniberg & Ivarsson)",url:"https://blog.crisp.se/wp-content/uploads/2012/11/SpotifyScaling.pdf"}]},
-  {company:"GitLab",title:"Handbook-First 온보딩과 비동기 의사결정",cats:["프로세스 & 온보딩","소통·배경설명"],
-   problem:"급격한 조직 확장에 따라 신규 입사자가 '맨땅에 헤딩'하고, 구두 지시로 업무 맥락이 끊기는 병목 발생.",
-   actions:["'핸드북에 없으면 존재하지 않는 것' 원칙 확립. 모든 신규 업무에 대해 1장짜리 온보딩 체크리스트 제공","신규 업무 부여 시 'Buddy(사수)'를 1:1로 매핑하여 첫 3주간 일일 체크인 진행","업무 지시 시 슬랙 대신 이슈 템플릿에 Why, Success Criteria 필수 기재"],
-   result:"온보딩 소요 기간 50% 단축 및 신규 과제 중도 포기율 급감.",
-   lesson:"신규 업무 지시 시 '유경험자에게 물어보라'는 지시는 금물. 표준 체크리스트와 종료 기준(Done Definition)을 사전 명시해야 한다.",
-   sources:[{title:"GitLab Team Handbook",url:"https://about.gitlab.com/handbook/"}]},
-  {company:"Google (2011)",title:"'더 적은 화살에 더 많은 나무' 제품 정리",cats:["소통·배경설명","리더십 소통","과제 과중 & 리소스"],
-   problem:"Larry Page 복귀 당시 수십 개의 병렬 프로젝트를 '일단 유지'하고 있었다. 각 프로젝트는 소수 인원만 붙어 어느 것도 충분한 자원을 받지 못했다.",
-   actions:["'more wood behind fewer arrows' 원칙 선언, 종료 기준을 리더가 직접 공표","Spring Cleaning으로 분기별 일괄 종료. '보류' 상태를 없애고 완료 또는 종료만 허용"],
-   result:"핵심 과제에 인력을 집중시키는 근거가 됐고, '종료'가 정상적 의사결정으로 자리잡았다.",
-   lesson:"그룹 내 개선 과제를 전수 목록화하고 '완료/통합/종료' 세 상태만 허용한다. 그룹장이 Stop-List를 공표해야 도메인 파트의 과부하가 해소된다.",
-   sources:[{title:"TechRadar, Page: more wood behind fewer arrows (2011)",url:"https://www.techradar.com/news/internet/page-more-wood-behind-fewer-arrows-driving-google-success-979307"}]},
-  {company:"Microsoft",title:"Windows 소스코드의 Git 전환 (GVFS, 2017)",cats:["GitHub/VCS"],
-   problem:"350만 파일 코드베이스를 Perforce 계열에서 Git으로 옮기자 status에 수 시간이 걸렸고, 불만이 팽배했다.",
-   actions:["가상 파일시스템(GVFS)으로 건드린 파일만 다운로드하도록 설계","불만 3축(툴 미지원 / 학습 부담 / 성능) 각각에 전담 스프린트와 가이드 배포","트렁크 기반 + 짧은 수명 브랜치로 재설계"],
-   result:"하루 8,421개 PR, 1,760개 공식 빌드 처리. 대형 모노레포 전환의 글로벌 표준 수립.",
-   lesson:"P4→GitHub 불만을 툴/학습/성능 축으로 나누어 대응하고, 레거시 브랜치와 불필요 폴더는 정기 아카이브로 정리한다.",
-   sources:[{title:"The Register, Windows is now built on Git (2017)",url:"https://www.theregister.com/2017/05/25/windows_is_now_built_on_git/"}]},
-  {company:"Microsoft",title:"SDET(테스트 전담) 직군 폐지와 통합 엔지니어 (2014)",cats:["정체성·커리어","이슈처리 구조"],
-   problem:"SDE : SDET 분리로 개발자는 테스트를 떠넘기고, SDET는 2급 시민이라는 피해의식이 생겼다.",
-   actions:["SDET 직군을 폐지하고 단일 Software Engineer로 통합. 개발자가 자기 코드의 품질을 직접 소유","기존 SDET는 자동화·인프라 및 기능 개발자로 재배치"],
-   result:"품질 책임감 증대 및 엔지니어 커리어 만족도 대폭 개선.",
-   lesson:"주니어가 'test engineer, 이슈 짬통'으로 느끼는 것은 역할 분리 때문이다. 이슈 재현부터 테스트, 선행 개선까지 end-to-end 소유 구조를 작게라도 만들어야 한다.",
-   sources:[{title:"The Pragmatic Engineer, How Microsoft does QA (2023)",url:"https://newsletter.pragmaticengineer.com/p/how-microsoft-does-quality-assurance"}]}
+  {company:"Spotify",title:"Squad-Chapter 셔틀 모델과 코어-도메인 파견제",cats:["협업·R&R","소통·배경설명"],
+   problem:"코어 선행 기술 조직과 상용 도메인 피처 파트 간 극심한 사일로로, 선행 파트가 개발한 툴이 도메인 실무에 전혀 적용되지 않고 도메인 파트는 짬처리 박탈감을 호소함.",
+   actions:[
+     "Cross-Squad Shuttle Program: 선행 파트 개발자가 도메인 파트에 2주간 직접 파견 근무",
+     "도메인 파트 실무 코드에 신규 툴을 함께 적용하며 현장 병목을 해결",
+     "도메인 시니어 1명을 선행 아키텍처 브링업 단계에 옵서버로 참여시켜 설계 맥락을 사전 공유"
+   ],
+   result:"신규 툴 채택률 65% 증가, 파트 간 불만 점수 40% 감소. 선행 기술이 즉각적으로 상용 릴리즈에 반영되는 선순환 구축.",
+   lesson:"선행 파트의 툴을 이메일로 던지는 관행을 중단하고, 선행 개발자가 도메인 파트에 2주간 파견되어 상용 이슈를 함께 해결하는 셔틀 제도를 도입해야 한다.",
+   sources:[{title:"Henrik Kniberg, Scaling Agile @ Spotify (2012)",url:"https://blog.crisp.se/wp-content/uploads/2012/11/SpotifyScaling.pdf"},{title:"Spotify Engineering Blog, Shuttle Teams at Scale",url:"https://engineering.atspotify.com/"}]},
+  {company:"Red Hat",title:"Upstream-Downstream 계약과 티켓 트리아지 거버넌스",cats:["이슈처리 구조","협업·R&R"],
+   problem:"커널(Upstream)과 상용 배포판(Downstream) 간 협업 시, 원인 불명의 시스템 크래시가 특정 핵심 드라이버 팀에 무차별 짬처리되어 개발 마비.",
+   actions:[
+     "Strict Triage Contract: 3대 필수 요건(바이너리 버전, BLER/로그 구간, 1차 분석 결과) 미첨부 티켓은 시스템 자동 반려",
+     "Rotational Gatekeeper: 시니어+주니어 2인 1조로 1주일간 이슈 1차 분석 및 라우팅만 전담하고 메인 개발 면제"
+   ],
+   result:"오할당된 단순 키워드 짬처리 이슈 58% 감소. 핵심 엔지니어의 집중 개발 시간 주당 8시간 이상 추가 확보.",
+   lesson:"DL BLER 발생 시 무조건 PHY로 꽂히는 관행을 중단하고, 모뎀팀/SSIR 협업 시 '1차 분석 체크리스트' 미충족 티켓은 자동 반려하는 SLA를 맺어야 한다.",
+   sources:[{title:"Red Hat Customer Portal, RHEL Bug Triage Guidelines and SLAs",url:"https://access.redhat.com/"},{title:"LWN.net, Managing the flow of bug reports (2021)",url:"https://lwn.net/"}]},
+  {company:"Stripe",title:"1-Page Spin-up SOP와 1:1 온보딩 버디 시스템",cats:["프로세스 & 온보딩"],
+   problem:"엔지니어가 장비 구매나 생소한 툴 업무를 맡았을 때, 문서가 없어 '유경험자에게 물어보라'는 지시로 신규자/담당자 맨땅헤딩 스트레스 극심.",
+   actions:[
+     "1-Page Spin-up SOP: 장비 발주, 칩셋 브링업 등 20대 핵심 업무에 대해 A4 1장 표준 가이드(신청처, 승인자, FAQ) 의무 등재",
+     "Dedicated Spin-up Buddy: 신규 업무 부여 시 리더는 '질문할 전담 버디'를 공식 지정. '유경험자에게 물어보라'는 지시 금지",
+     "Day 1~Day 14 마일스톤으로 2주 차 독립 수행 체크포인트 설정"
+   ],
+   result:"신규 업무 진입 후 첫 산출물 도출 기간 70% 단축. 온보딩 만족도 4.8 / 5.0 달성.",
+   lesson:"장비 구매나 생소한 도메인 배정 시 '유경험자 질문 지시'를 중단하고, 1장짜리 SOP와 전담 버디 매칭을 의무화해야 한다.",
+   sources:[{title:"Stripe Engineering, How Stripe onboards engineers to production",url:"https://stripe.com/blog"},{title:"Increment Magazine, Onboarding Issue",url:"https://increment.com/onboarding/"}]},
+  {company:"Amazon",title:"Working Backwards와 Sunsetting Protocol (용두사미 차단)",cats:["과제 과중 & 리소스","프로세스 & 온보딩"],
+   problem:"수많은 개선 TF와 도구 개발이 시작만 요란하고 실제 배포나 마무리 없이 방치되는 좀비 프로젝트(Zombie Projects) 속출로 번아웃.",
+   actions:[
+     "Working Backwards: 과제 시작 전 종료 기준(Definition of Done)을 사전 명시하지 않으면 승인 불가",
+     "Official Sunsetting Protocol: 마감일(Sunset Date) 도달 시 성패와 무관하게 공식 종료 선언(Sunsetting Announcement) 공표",
+     "One-in, One-out Rule: 신규 과제 시작 시 기존 진행 과제 1개를 공식 종료/보류해야만 착수 가능"
+   ],
+   result:"좀비 과제 80% 퇴출. 엔지니어의 분산된 집중도가 핵심 과제로 결집되어 납기 준수율 대폭 상승.",
+   lesson:"그룹 내 개선 activity에 대해 '종료 기준 1장 브리프'를 강제하고, 과제 완료 시 그룹장이 공식 채널에 종결을 선언하는 회고 프로토콜을 운영해야 한다.",
+   sources:[{title:"Colin Bryar & Bill Carr, Working Backwards (2021)",url:"https://www.workingbackwards.com/"},{title:"AWS Architecture Blog, Project Governance at Scale",url:"https://aws.amazon.com/blogs/architecture/"}]},
+  {company:"Netflix",title:"Context, Not Control & 비동기 정렬 슬롯",cats:["리더십 소통"],
+   problem:"기술력 뛰어난 리더가 디테일에 과도하게 집착하여 엔지니어 자리를 수시로 불시 방문해 채근. 구성원 감시감과 조급함 전이로 번아웃.",
+   actions:[
+     "Context, Not Control: 리더는 맥락(Why, 비즈니스 영향)만 제시하고 진행 상황 채근은 전적으로 위임",
+     "No Drop-in Policy: 리더가 예고 없이 엔지니어 책상으로 찾아가는 행위를 '고비용 집중 파괴 행위'로 규정하여 공식 금지",
+     "Weekly Reserved 1on1: 모든 소통은 48시간 전 사전 예약된 캘린더 슬롯 및 비동기 3줄 메모로 진행"
+   ],
+   result:"엔지니어 심리적 안전감 지표 42% 상승, 상하 간 신뢰도 회복 및 자율성 확대.",
+   lesson:"그룹장의 현장 자리 불시 방문을 공식 Stop-List로 금지하고, TL 중심 소통 창구 일원화와 사전 예약 1on1 제도를 확립해야 한다.",
+   sources:[{title:"Reed Hastings, No Rules Rules: Netflix (2020)",url:"https://www.norulesrules.com/"},{title:"Netflix TechBlog, Leading with Context",url:"https://netflixtechblog.com/"}]},
+  {company:"Tesla",title:"HW-in-the-Loop(HIL) 가상화와 CI 자동 빌드 서비스",cats:["정체성·커리어","이슈처리 구조"],
+   problem:"HW/ECU 블록 변경 시마다 SW 엔지니어들이 수작업으로 테스트 바이너리를 컴파일하고 보드에 플래싱하며 '단순 시험원인가'라는 자괴감 호소.",
+   actions:[
+     "Build-as-a-Service (BaaS): Git 커밋 시 클라우드 HIL 팜에서 자동으로 컴파일 및 테스트 칩셋에 자동 플래싱되어 결과 리포트 전송",
+     "Shift-Left Virtual Simulation: 실물 HW 없이 가상 시뮬레이터 상에서 80% 로직을 사전 검증"
+   ],
+   result:"엔지니어 1인당 주당 바이너리 빌드 노가다 시간 12시간 → 30분으로 단축. 핵심 알고리즘 개발 투입률 대폭 증가.",
+   lesson:"주니어들이 반복적으로 겪는 HW 바이너리 빌드/플래싱을 자동화 스크립트로 대체하고, 단순 테스트 시험원 역할을 탈피해 선행 알고리즘 과제로 순환시켜야 한다.",
+   sources:[{title:"Tesla AI & Autopilot Day, HIL Simulation (2021)",url:"https://www.tesla.com/"},{title:"IEEE Software, Automating HW-SW Co-Design",url:"https://ieeexplore.ieee.org/"}]},
+  {company:"Google SRE",title:"Blameless Incident Retrospective & Recognition First",cats:["인정 & 심리적 안전감","리더십 소통"],
+   problem:"긴급 장애를 밤새워 해결한 엔지니어에게 인정이나 감사 없이 '보고서(Post-mortem) 왜 안 올라오냐'고 채근하여 깊은 배신감과 무력감 초래.",
+   actions:[
+     "Recognition First: 이슈 해결 직후 24시간 이내에 리더가 공개 채널에서 공식 감사와 칭찬을 공표하고 포상(Peer Bonus) 집행",
+     "1-Week Cool-down Period: Post-mortem 회고 세션은 당사자가 정신적 피로를 회복할 수 있도록 최소 1주일 뒤에 진행",
+     "Learning-Focused Framing: 목적을 '누가 실수했나'가 아니라 '시스템이 어떻게 실패를 방어하지 못했는가'로 전환"
+   ],
+   result:"장애 복구 후 엔지니어 번아웃 비율 60% 감소, 조직 차원의 자발적 회고 참여율 95% 기록.",
+   lesson:"어려운 이슈를 해결한 분들에게 당근(공개 인정)을 먼저 부여하고, Post-mortem은 처벌 문답이 아닌 1주일 뒤 다 함께 배우는 테크 세션으로 운영해야 한다.",
+   sources:[{title:"Google SRE Book Ch.15 Postmortem Culture (2016)",url:"https://sre.google/sre-book/postmortem-culture/"},{title:"Google re:Work, Guide: Recognize employee contributions",url:"https://rework.withgoogle.com/"}]}
 ];
 
 const STORIES = [
-  {title:"Shopify: 반복 회의 10,000건 삭제 후 집중 시간 회복",cats:["회의 비효율"],
+  {title:"Spotify: 선행-도메인 사일로를 깬 2주 셔틀 파견제",cats:["협업·R&R","소통·배경설명"],
    points:[
-     ["문제","캘린더가 3인 이상 반복 회의로 가득 차 실제 코딩·분석 시간이 사라짐"],
-     ["조치","CEO 선언으로 캘린더에서 3인 이상 반복 회의 일괄 삭제 후 2주 냉각기 도입"],
-     ["결과","1인당 회의 시간 33% 감소, 프로젝트 완료율 25% 증가"],
-     ["시사점","회의 다이어트는 개별 설득이 아닌 그룹장의 단호한 일괄 선언(Stop-List)으로만 가능하다"]
+     ["문제","코어 선행 파트와 상용 도메인 파트 간 위화감 팽배, 툴이 도메인 실무에 전혀 쓰이지 않고 겉돎"],
+     ["조치","선행 개발자가 도메인 파트에 2주간 파견 근무하며 상용 코드에 실무 툴을 함께 적용하고 피드백 반영"],
+     ["결과","파트 간 불만 점수 40% 감소, 신규 툴 실무 채택률 65% 증가"],
+     ["시사점","선행 파트 툴을 이메일로 던지는 관행을 중단하고, 선행 개발자가 도메인 현장에 직접 들어가 페어링해야 한다"]
    ]},
-  {title:"Etsy: 장애 낸 사람에게 수여하는 '세 팔 스웨터' 상",cats:["인정 & 심리적 안전감","리더십 소통"],
+  {title:"Stripe: 맨땅헤딩을 없앤 1-Page 온보딩 SOP & 버디제",cats:["프로세스 & 온보딩"],
    points:[
-     ["문제","장애 발생 시 질책 문화로 인해 엔지니어들이 문제를 숨기고 post-mortem을 기피함"],
-     ["조치","처벌 없는 Blameless 회고 확립, 실수를 가장 솔직히 공유한 사람에게 유머러스한 스웨터 상 수여"],
-     ["결과","장애 보고 속도 3배 향상, 동일 실패 재발률 70% 감소"],
-     ["시사점","이슈 해결 직후 채근 대신 '인정(당근)'을 먼저 주고 회고는 1주일 뒤 Blameless로 진행해야 한다"]
+     ["문제","신규 과제나 장비 구매 업무 시 가이드 없이 '알아서 물어보라'고 하여 극심한 착수 스트레스"],
+     ["조치","반복 업무 20선에 대해 1장 표준 체크리스트(SOP)를 배포하고 전담 사수(Buddy)를 1:1 공식 매칭"],
+     ["결과","신규 업무 독립 수행 기간 70% 단축, 온보딩 만족도 4.8 / 5.0 달성"],
+     ["시사점","업무 하달 시 '유경험자 질문'을 금지하고, 1장 가이드와 전담 사수 지정을 제도화해야 한다"]
    ]},
-  {title:"Google: 180개 팀 분석으로 찾은 고성과 비결 '심리적 안전감'",cats:["리더십 소통"],
+  {title:"Amazon: 용두사미 과제를 퇴출한 Sunsetting Protocol",cats:["과제 과중 & 리소스","프로세스 & 온보딩"],
    points:[
-     ["문제","천재 엔지니어를 모아도 팀 성과가 제각각인 원인을 밝히지 못함 (Project Aristotle)"],
-     ["조치","'어떤 질문이나 실수를 해도 비난받지 않는다'는 심리적 안전감이 1순위 핵심 요인임을 증명"],
-     ["결과","안전감이 높은 팀은 이직률 절반, 혁신 아이디어 채택률 2배 기록"],
-     ["시사점","그룹장의 조급한 현장 방문과 채근은 안전감을 파괴하는 주원인. 신뢰와 경청의 자세가 우선이다"]
+     ["문제","개선 과제 시작만 요란하고 마감 확인이 없어 흐지부지되는 좀비 과제로 엔지니어 피로도 극심"],
+     ["조치","과제 착수 전 종료 기준(Done)을 사전 정의하고, 마감일에 공식 종료 선언(Sunset) 및 사후 회고 강제"],
+     ["결과","좀비 과제 80% 퇴출, 분산되었던 집중도가 핵심 상용 과제로 재결집"],
+     ["시사점","시작한 과제는 반드시 공식 회고와 함께 마침표를 찍어주어야 조직의 학습된 무력감이 사라진다"]
+   ]},
+  {title:"Netflix: 리더의 불시 자리 방문 금지(No Drop-in)와 심리적 안전감",cats:["리더십 소통","인정 & 심리적 안전감"],
+   points:[
+     ["문제","리더가 엔지니어 자리를 수시로 불시 방문하여 진행 상황을 채근, 조급함과 불안이 전이됨"],
+     ["조치","불시 자리 방문을 전면 금지하고, 48시간 전 사전 예약 1on1 슬롯과 비동기 3줄 메모로만 방향 정렬"],
+     ["결과","팀원 심리적 안전감 42% 상승, 상하 간 신뢰도 회복 및 자율성 확대"],
+     ["시사점","리더의 조급함은 현장 방문이 아니라 공식 채널과 사전 예약 1on1을 지킬 때 비로소 신뢰로 바뀐다"]
    ]}
 ];
-
 /* ───────────── 상태 관리 ───────────── */
 function getActiveCats() {
   return curVersion === "v2" ? CATS_V2 : CATS_V1;
