@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Report Hub — KIHOKIL</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f8fafc;
+    --surface: #ffffff;
+    --ink: #0f172a;
+    --ink2: #334155;
+    --muted: #64748b;
+    --grid: #e2e8f0;
+    --border: rgba(15, 23, 42, 0.08);
+    --border-hover: rgba(15, 23, 42, 0.18);
+    --s1: #2563eb;
+    --s2: #f97316;
+    --s3: #059669;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 12px 20px -3px rgba(0, 0, 0, 0.09), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Pretendard", "Noto Sans KR", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--grid);
+    padding: 32px 36px;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sub {
+    color: var(--muted);
+    margin: 0;
+    font-size: 14.5px;
+  }
+  .badge {
+    background: #e0f2fe;
+    color: var(--s1);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    border: 1px solid rgba(37, 99, 235, 0.2);
+  }
+  main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 36px 80px;
+  }
+  .section-title {
+    font-size: 19px;
+    font-weight: 700;
+    margin: 0 0 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 24px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-3px);
+  }
+  .card.planned {
+    opacity: 0.72;
+    background: #fbfcfd;
+    border-style: dashed;
+  }
+  .card.planned:hover {
+    transform: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .card-top {
+    margin-bottom: 16px;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .pill {
+    display: inline-block;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 600;
+    background: #f1f5f9;
+    color: var(--ink2);
+  }
+  .pill.culture { background: #fee2e2; color: #b91c1c; }
+  .pill.ai { background: #e0e7ff; color: #4338ca; }
+  .pill.finance { background: #dcfce7; color: #15803d; }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    line-height: 1.4;
+    color: var(--ink);
+  }
+  .card p {
+    font-size: 13.5px;
+    color: var(--ink2);
+    margin: 0;
+    line-height: 1.55;
+  }
+  .card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: #f8fafc;
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin: 16px 0;
+    border: 1px solid var(--grid);
+  }
+  .stat-item {
+    text-align: center;
+  }
+  .stat-val {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+  .stat-lbl {
+    font-size: 11px;
+    color: var(--muted);
+  }
+  .card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--grid);
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    border: 1px solid transparent;
+  }
+  .btn-primary {
+    background: var(--s1);
+    color: #ffffff;
+    flex: 1;
+  }
+  .btn-primary:hover {
+    background: #1d4ed8;
+  }
+  .btn-sub {
+    background: #f1f5f9;
+    color: var(--ink2);
+    border-color: var(--grid);
+  }
+  .btn-sub:hover {
+    background: #e2e8f0;
+    color: var(--ink);
+  }
+  footer {
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+    color: var(--muted);
+    border-top: 1px solid var(--grid);
+    background: var(--surface);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div>
+      <h1>📚 Report Hub <span class="badge">Monorepo Portal</span></h1>
+      <p class="sub">다양한 주제의 독립 연구, 엔지니어링 분석 및 인터랙티브 대시보드를 모아 제공하는 리포트 허브입니다.</p>
+    </div>
+    <div style="font-size:13px;color:var(--muted)">
+      GitHub: <a href="https://github.com/KIHOKIL/Report" target="_blank" style="color:var(--s1);text-decoration:none;font-weight:600">KIHOKIL/Report</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="section-title">
+    <span>전체 리포트 목록</span>
+    <span style="font-size:13px;font-weight:500;color:var(--muted)">1개 활성 리포트</span>
+  </div>
+
+  <div class="grid">
+    <!-- Active Report 1: PHY SW Group 1on1 -->
+    <div class="card">
+      <div>
+        <div class="card-meta">
+          <span class="pill culture">조직문화 / 1on1</span>
+          <span style="font-size:12px;color:var(--muted)">2026-10-29</span>
+          <span class="badge" style="margin-left:auto;background:#dcfce7;color:#15803d;border-color:transparent">v2.0 Complete</span>
+        </div>
+        <h2>PHY SW Group 1on1 조직문화 진단 및 리커버리</h2>
+        <p>구성원 21명 전원의 173건 피드백 전수 분석, 12대 확장 카테고리 심각도 히트맵, 10대 Stop-List, 글로벌 빅테크 벤치마크 7선, 15대 실행 과제 및 인터랙티브 웹 대시보드.</p>
+        
+        <div class="card-stats">
+          <div class="stat-item"><div class="stat-val">173건</div><div class="stat-lbl">누적 피드백</div></div>
+          <div class="stat-item"><div class="stat-val">12개</div><div class="stat-lbl">고충 카테고리</div></div>
+          <div class="stat-item"><div class="stat-val">10선</div><div class="stat-lbl">Stop-List</div></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <a href="culture/2026-10-phy-sw-1on1/dashboard/" class="btn btn-primary">📊 인터랙티브 대시보드 열기</a>
+        <a href="https://github.com/KIHOKIL/Report/tree/main/culture/2026-10-phy-sw-1on1/docs" target="_blank" class="btn btn-sub">📄 보고서 폴더</a>
+      </div>
+    </div>
+
+    <!-- Planned Report 2: Semantic CodeGraph Indexer -->
+    <div class="card planned">
+      <div>
+        <div class="card-meta">
+          <span class="pill ai">AI / SW Engineering</span>
+          <span style="font-size:12px;color:var(--muted)">Upcoming</span>
+        </div>
+        <h2>Semantic CodeGraph Indexer 연구</h2>
+        <p>대규모 C/C++ 코드베이스의 의미론적 그래프 인덱싱, AST 파싱 기반 의존성 추적 및 AI 코딩 에이전트 연동 아키텍처 분석 리포트.</p>
+        
+        <div class="card-stats" style="opacity:0.6">
+          <div class="stat-item"><div class="stat-val">-</div><div class="stat-lbl">노드 인덱스</div></div>
+          <div class="stat-item"><div class="stat-val">-</div><div class="stat-lbl">그래프 커버리지</div></div>
+          <div class="stat-item"><div class="stat-val">Planning</div><div class="stat-lbl">상태</div></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <span class="btn btn-sub" style="flex:1;cursor:default;opacity:0.6">📁 작성 준비 중</span>
+      </div>
+    </div>
+
+    <!-- Planned Report 3: Bond Laddering -->
+    <div class="card planned">
+      <div>
+        <div class="card-meta">
+          <span class="pill finance">Finance / Macro</span>
+          <span style="font-size:12px;color:var(--muted)">Upcoming</span>
+        </div>
+        <h2>채권 래더링(Bond Laddering) 투자 전략 분석</h2>
+        <p>금리 사이클 변동기에 안정적 현금 흐름과 재투자 수익률을 극대화하는 만기별 채권 포트폴리오 구축 전략 및 리밸런싱 시뮬레이션.</p>
+        
+        <div class="card-stats" style="opacity:0.6">
+          <div class="stat-item"><div class="stat-val">-</div><div class="stat-lbl">만기 분산</div></div>
+          <div class="stat-item"><div class="stat-val">-</div><div class="stat-lbl">YTM 목표</div></div>
+          <div class="stat-item"><div class="stat-val">Planning</div><div class="stat-lbl">상태</div></div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <span class="btn btn-sub" style="flex:1;cursor:default;opacity:0.6">📁 작성 준비 중</span>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  © 2026 Report Hub by KIHOKIL. Hosted on GitHub Pages.
+</footer>
+
+</body>
+</html>

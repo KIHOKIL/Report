@@ -1,71 +1,47 @@
-# PHY SW Group 조직문화 개선 AX 에이전트 팀 — 사용 안내서
+# 📚 Multi-Topic Research & Engineering Report Hub
 
-> 삼성전자 DS 보직장 교육 해커톤 산출물. 그룹장이 진행한 1on1 피드백을 멀티에이전트가 진단·분석하고, 실시간 입력이 가능한 인터랙티브 대시보드로 보여줍니다.
+개인 연구, 엔지니어링 분석, 조직문화 진단 및 기술 벤치마크 리포트를 모아 관리하는 중앙 포털 허브입니다.  
+모든 리포트는 독립적인 서브 디렉터리로 관리되며, 웹 브라우저를 통해 인터랙티브 대시보드와 전문 보고서를 바로 열람할 수 있습니다.
 
-## 1. 무엇을 하는 팀인가
+🌐 **웹 포털 바로가기 (GitHub Pages)**: [https://kihokil.github.io/Report/](https://kihokil.github.io/Report/)
 
-| 단계 | 에이전트 | 하는 일 | 결과 파일 |
-|---|---|---|---|
-| 1 | Culture Diagnostician | 직급별 감정 히트맵, 근본 원인, 심리적 안전감 진단 | `docs/01_진단_결과.md` |
-| 2 | Workflow Optimizer | GitHub/회의/과제 병목 분석, Stop-List | `docs/02_병목_StopList.md` |
-| 3 | Leadership Action Designer | 단·중·장기 대책, 간담회 스크립트, 로드맵 | `docs/03_단중장기_대책.md` |
-| 1′ | Bigtech Benchmark Researcher | 빅테크 유사 사례·우수 극복 사례 조사 | `docs/04_빅테크_사례.md` |
-| 4 | Dashboard Builder | 단일 HTML 대시보드 제작 | `dashboard/index.html` |
-| 5 | Hackathon Judge | 제출 전 셀프 심사 | `docs/05_심사_결과.md` |
+---
 
-에이전트 정의는 `.claude/agents/*.md`, 호출 규칙은 `CLAUDE.md`에 있습니다.
+## 🗂️ 리포트 카탈로그 (Report Index)
 
-## 2. 폴더 구조
+| 일자 | 분야 | 주제 | 바로가기 | 상태 |
+|:---:|:---:|---|:---:|:---:|
+| **2026-10** | **조직문화** | **PHY SW Group 1on1 조직문화 진단 및 리커버리 (v2.0)**<br>· 21명 전원 173건 피드백 전수 분석<br>· 12대 확장 카테고리 심각도 히트맵 & 심리적 안전감 진단<br>· Stop-List 10선, 15대 실행 대책, 글로벌 빅테크 벤치마크 7선 | [📊 대시보드 열기](https://kihokil.github.io/Report/culture/2026-10-phy-sw-1on1/dashboard/)<br>[📄 보고서 폴더](culture/2026-10-phy-sw-1on1/docs/) | `Done (v2.0)` |
+| *Upcoming* | **AI/ML** | **Semantic CodeGraph Indexer 연구**<br>· 대규모 C/C++ 코드베이스 의미론적 그래프 인덱싱 | [📁 폴더 준비중](tech-research/) | `Planning` |
+| *Upcoming* | **금융/경제** | **채권 래더링(Bond Laddering) 전략 분석**<br>· 금리 변동기 만기 분산 포트폴리오 시뮬레이션 | [📁 폴더 준비중](finance/) | `Planning` |
 
-```
-261015_PHY_SW_그룹장/
-├── CLAUDE.md                 # Head(오케스트레이터): 라우팅 규칙·페르소나·안전장치
-├── README.md                 # 이 문서
-├── .claude/agents/           # Sub-Agent 6개
-├── docs/                     # 에이전트 산출 문서 01~05
-├── dashboard/
-│   ├── index.html            # 인터랙티브 대시보드 (더블클릭으로 실행)
-│   └── sample_1on1.json      # 가져오기 테스트용 익명 샘플
-└── 제출_결과.txt              # Scorebot 채점 결과 + 플랫폼 제출용 설명
-```
+---
 
-## 3. 대시보드 사용법
+## 🏗️ 디렉터리 아키텍처
 
-1. `dashboard/index.html`을 더블클릭합니다. 인터넷·설치 불필요, 외부 라이브러리 없음.
-2. 상단 탭:
-   - **현황 진단**: KPI 카드, 직급 × 고충 카테고리 히트맵, 카테고리별 막대, 긍정/부정 비율
-   - **1on1 실시간 입력**: 날짜·직급·카테고리·감정도·요약을 입력하면 모든 차트가 즉시 갱신됩니다
-   - **빅테크 사례**: 유사 고충을 겪은 글로벌 기업 사례와 우리 그룹 매핑
-   - **단·중·장기 대책**: 타임라인과 고충별 대책 표
-   - **우수 극복 사례**: 문제→조치→결과→시사점 스토리
-3. 입력 데이터는 브라우저 `localStorage`에만 저장됩니다. 다른 PC로 옮기려면 **JSON 내보내기** → **가져오기**를 사용하세요.
-4. 초기화하려면 입력 탭의 "초기 데이터로 되돌리기"를 누릅니다.
-
-## 4. 에이전트 팀 사용법 (Claude Code)
-
-이 폴더에서 Claude Code를 열고 아래처럼 요청합니다.
-
-```
-처음부터 끝까지 해커톤 산출물을 만들어줘        → 전체 파이프라인 실행
-새 1on1 3건을 추가했어. 진단을 다시 해줘         → culture-diagnostician
-회의 Stop-List를 뽑아줘                         → workflow-optimizer
-CA 간담회 오프닝 스크립트를 써줘                → leadership-action-designer
-GitHub 전환 고충을 겪은 다른 회사 사례를 찾아줘  → bigtech-benchmark-researcher
-대시보드를 다시 만들어줘                        → dashboard-builder
-제출 전에 심사해줘                              → hackathon-judge
+```text
+Report/
+├── .gitignore                     # 민감정보 원본(*.xlsx) 차단 규칙
+├── README.md                      # 전체 리포트 색인 및 설명 (본 문서)
+├── index.html                     # [GitHub Pages] 전체 리포트 포털 웹 랜딩 페이지
+│
+├── culture/                       # [분야 1] 조직문화 / 인사 진단
+│   └── 2026-10-phy-sw-1on1/       # PHY SW Group 1on1 진단 리포트 (v2.0)
+│       ├── README.md              # 프로젝트 요약 및 가이드
+│       ├── dashboard/             # 인터랙티브 대시보드 (index.html, JSON)
+│       ├── docs/                  # 01~05 진단·병목·대책·빅테크 마크다운 보고서
+│       └── archive/               # 과거 v1.0 동결 보존 스냅샷
+│
+├── tech-research/                 # [분야 2] AI / 소프트웨어 공학 기술 분석
+│
+└── finance/                       # [분야 3] 경제 / 금융 / 투자 전략 리포트
 ```
 
-## 5. 제출 절차
+---
 
-1. 이 폴더를 zip으로 압축합니다. **주의**: Windows PowerShell의 `Compress-Archive`는 경로 구분자를 `\`로 써서 채점기가 Sub-Agent를 인식하지 못합니다. 아래 명령을 사용하세요.
-   ```
-   cd %USERPROFILE%\Desktop
-   tar.exe -a -cf 261015_PHY_SW_그룹장.zip 261015_PHY_SW_그룹장
-   ```
-2. Scorebot(https://samsungscorebot2.netlify.app/)에 zip을 올리고 PASS를 확인한 뒤 "제출 결과 복사하기"를 누릅니다.
-3. 콘테스트 플랫폼(https://contest-platform-production.up.railway.app/samsungds-ai)에 Knox 이메일로 가입·로그인 → 제출하기 → 산출물 설명에 복사한 채점 결과를 붙여넣습니다. 붙여넣을 설명문은 `제출_결과.txt`에 준비되어 있습니다.
+## 🚀 신규 리포트 추가 가이드 (How to add a new report)
 
-## 6. 데이터 취급 주의
-
-- 1on1 원문과 원본 파일(csv/xlsx)은 이 폴더와 zip에 포함하지 않습니다. 대시보드에는 익명화·요약된 문장만 있습니다.
-- 입력 폼에 실명·사번이 들어가면 경고가 표시됩니다. 개인이 식별되는 표현은 쓰지 마세요.
+1. 해당 분야 카테고리 폴더(`culture/`, `tech-research/`, `finance/`) 아래에 새 프로젝트 폴더를 만듭니다. (예: `tech-research/2026-codegraph/`)
+2. 분석 마크다운 보고서(`docs/`) 및 인터랙티브 웹 대시보드(`dashboard/`)를 구성합니다.
+3. 루트 `index.html`과 `README.md`의 리포트 인덱스 테이블에 새 리포트 카드/링크를 추가합니다.
+4. Git 커밋 및 푸시하면 GitHub Pages에 즉시 자동 반영됩니다!
